@@ -27,7 +27,6 @@ WsProxy is an HTTP proxy designed specifically for pentesting applications that 
 - Selenium support for upgrade requests
 - Selenium "monitor" for XSS detection
 - Remote monitoring agent
-- HTTP/3 proxy support
 - WebRTC support
 
 # Installation
