@@ -1,0 +1,24 @@
+<component name="ArtifactManager">
+  <artifact name="WsProxy:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/WsProxy_jar</output-path>
+    <root id="root">
+      <element id="archive" name="WsProxy.jar">
+        <element id="module-output" name="WsProxy" />
+      </element>
+      <element id="directory" name="lib">
+        <element id="library" level="project" name="bouncycastle.bcpkix.jdk15on" />
+        <element id="library" level="project" name="bouncycastle.bcprov.jdk15on" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bcmail-jdk15to18-170.jar" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bcjmail-jdk15to18-170.jar" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bcpg-jdk15to18-170.jar" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bcpkix-jdk15to18-170.jar" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bcprov-ext-jdk15to18-170.jar" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bcprov-jdk15to18-170.jar" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bctls-jdk15to18-170.jar" />
+        <element id="file-copy" path="$USER_HOME$/javalib/bcprov-jkd18/bcutil-jdk15to18-170.jar" />
+        <element id="library" level="project" name="jython-2.7.2" />
+        <element id="library" level="project" name="sqlite-jdbc-3.36.0.3" />
+      </element>
+    </root>
+  </artifact>
+</component>

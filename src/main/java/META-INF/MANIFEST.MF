@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Main-Class: com.wsproxy.Main
+Class-Path: lib/bcprov-jdk15on-1.70.jar lib/bcpkix-jdk15on-1.70.jar lib/
+ bcprov-jdk15on-1.70.jar lib/bcutil-jdk15on-1.70.jar lib/bcpg-jdk15to18-
+ 170.jar lib/bctls-jdk15to18-170.jar lib/bcmail-jdk15to18-170.jar lib/bc
+ pkix-jdk15to18-170.jar lib/bcprov-jdk15to18-170.jar lib/bcutil-jdk15to1
+ 8-170.jar lib/bcjmail-jdk15to18-170.jar lib/bcprov-ext-jdk15to18-170.ja
+ rlib/jython-2.7.2.jar lib/jackson-core-2.13.2.jar
+
