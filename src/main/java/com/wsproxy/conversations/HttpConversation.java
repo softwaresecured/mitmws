@@ -14,7 +14,19 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.logging.Logger;
-
+/*
+    Before:
+        1.250631
+        0.720533
+        0.682860
+        0.774481
+        0.736254
+        1.336309
+        0.705866
+        0.649426
+        0.675480
+        0.620759
+ */
 public final class HttpConversation {
     private static final String[] SUPPORTED_METHODS = {"GET","PUT","PATCH","POST","HEAD","OPTIONS","DELETE","CONNECT"};
     private Logger LOGGER = AppLog.getLogger(HttpConversation.class.getName() );

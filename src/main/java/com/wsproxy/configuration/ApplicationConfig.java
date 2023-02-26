@@ -159,7 +159,7 @@ public class ApplicationConfig {
                 }
                 break;
             case INTERACTSH_TOKEN:
-                if ( !value.matches("^(?i)[a-f0-9]+$") && value != null ) {
+                if ( !value.matches("^(?i)[a-z0-9]+$") && value != null ) {
                     throw new ApplicationConfigException("Invalid interactsh token");
                 }
                 break;
