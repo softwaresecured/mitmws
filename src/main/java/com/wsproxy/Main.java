@@ -1,15 +1,22 @@
 package com.wsproxy;
 import com.wsproxy.configuration.ApplicationConfig;
 import com.wsproxy.environment.Environment;
+import com.wsproxy.httpproxy.HttpProxy;
+import com.wsproxy.httpproxy.trafficlogger.TrafficLogger;
 import com.wsproxy.logging.AppLog;
 import com.wsproxy.mvc.WsProxyGui;
+import com.wsproxy.mvc.model.BreakpointModel;
+import com.wsproxy.mvc.thread.TrafficLogQueueProcessorThread;
+import com.wsproxy.mvc.view.WsProxyHeadless;
 import com.wsproxy.pki.RSACrypto;
+import com.wsproxy.projects.ProjectDataService;
 import com.wsproxy.projects.ProjectDataServiceException;
 import com.wsproxy.updates.UpdateManager;
 import com.wsproxy.util.FileUtils;
 import com.wsproxy.util.ManifestUtils;
 import com.wsproxy.version.VERSION;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -147,7 +154,6 @@ public class Main {
         }
     }
     public static void main(String[] args) throws UnknownHostException, InterruptedException {
-
         // Clear temp vars from previous run
         Environment environment = new Environment();
         environment.clearTemp();
@@ -171,15 +177,34 @@ public class Main {
             } else if ( args[0].equals("--check")) {
                 checkUpdate();
             }
+            else if ( args[0].equals("--headless")) {
+                String projectFile = null;
+                try {
+                    projectFile = File.createTempFile("wsproxy",".wspdb").getPath();
+                    if ( args.length == 2 ) {
+                        projectFile = args[1];
+                    }
+                    WsProxyHeadless wsProxyHeadless = new WsProxyHeadless(projectFile);
+                    wsProxyHeadless.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
             else {
-                System.out.println("Unknown argument");
-                System.exit(-1);
+                displayStartupError("Unknown argument", -1);
             }
         }
         else {
             startGui();
         }
         System.exit(0);
+    }
+
+    public static void displayStartupError(String message, int status) {
+        System.out.println(message);
+        System.exit(status);
     }
 }
 

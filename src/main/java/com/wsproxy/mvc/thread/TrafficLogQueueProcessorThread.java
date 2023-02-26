@@ -1,10 +1,12 @@
 package com.wsproxy.mvc.thread;
 
 import com.wsproxy.configuration.ApplicationConfig;
+import com.wsproxy.httpproxy.trafficlogger.TrafficLogger;
 import com.wsproxy.httpproxy.trafficlogger.TrafficRecord;
 import com.wsproxy.httpproxy.trafficlogger.TrafficSource;
 import com.wsproxy.logging.AppLog;
 import com.wsproxy.mvc.model.MainModel;
+import com.wsproxy.projects.ProjectDataService;
 import com.wsproxy.projects.ProjectDataServiceException;
 
 import java.util.logging.Logger;
@@ -17,14 +19,24 @@ import java.util.regex.Pattern;
  */
 public class TrafficLogQueueProcessorThread extends Thread {
     private Logger LOGGER = AppLog.getLogger(TrafficLogQueueProcessorThread.class.getName());
-    private MainModel mainModel;
+    private MainModel mainModel = null;
     private boolean shutdownRequested = false;
     private ApplicationConfig applicationConfig = new ApplicationConfig();
+    private TrafficLogger trafficLogger = null;
+    private ProjectDataService projectDataService = null;
 
+    public TrafficLogQueueProcessorThread(TrafficLogger trafficLogger, ProjectDataService projectDataService) {
+        this.trafficLogger = trafficLogger;
+        this.projectDataService = projectDataService;
+    }
 
     public TrafficLogQueueProcessorThread(MainModel mainModel) {
         this.mainModel = mainModel;
+        trafficLogger = mainModel.getProxy().getLogger();
+        projectDataService = mainModel.getProjectModel().getProjectDataService();
     }
+
+
 
     public void run() {
         Pattern excludeRe = null;
@@ -37,9 +49,9 @@ public class TrafficLogQueueProcessorThread extends Thread {
             LOGGER.info("Traffic log queue processor started");
             long lastSync = 0;
             while ( !shutdownRequested ) {
-                TrafficRecord rec = mainModel.getProxy().getLogger().get();
+                TrafficRecord rec = trafficLogger.get();
                 if ( rec != null ) {
-                    mainModel.getProjectModel().getProjectDataService().saveTrafficRecord(rec);
+                    projectDataService.saveTrafficRecord(rec);
                     if ( rec.getId() >= 0 ) {
                         if ( rec.getHttpTrafficRecord() != null ) {
                             boolean httpExcluded = false;
@@ -50,8 +62,9 @@ public class TrafficLogQueueProcessorThread extends Thread {
                                 }
                             }
                             if ( !httpExcluded ) {
-                                mainModel.getProjectModel().getProjectDataService().saveHttpTrafficRecord(rec.getHttpTrafficRecord(),rec.getId());
-                                if ( rec.getTrafficSource().equals(TrafficSource.PROXY)) {
+                                projectDataService.saveHttpTrafficRecord(rec.getHttpTrafficRecord(),rec.getId());
+                                // Update UI only if main model present
+                                if ( rec.getTrafficSource().equals(TrafficSource.PROXY) && mainModel != null ) {
                                     mainModel.getTrafficModel().addHttpTraffic(rec.getHttpTrafficRecord());
                                     if ( rec.getHttpTrafficRecord().getResponse().getStatusCode() == 101 ) {
                                         mainModel.getTrafficModel().updateWebsocketConnections(rec);
@@ -60,30 +73,29 @@ public class TrafficLogQueueProcessorThread extends Thread {
                                 }
                             }
                         }
-                        if ( rec.getWebsocketTrafficRecord() != null ) {
-                            mainModel.getProjectModel().getProjectDataService().saveWebsocketTrafficRecord(rec.getWebsocketTrafficRecord(),rec.getId());
 
-                            if ( rec.getTrafficSource().equals(TrafficSource.PROXY)) {
+                        if ( rec.getWebsocketTrafficRecord() != null ) {
+                            projectDataService.saveWebsocketTrafficRecord(rec.getWebsocketTrafficRecord(),rec.getId());
+                            if ( rec.getTrafficSource().equals(TrafficSource.PROXY) && mainModel != null ) {
                                 mainModel.getTrafficModel().addWebsocketTraffic(rec.getWebsocketTrafficRecord().getFrame(),rec.getHighlightColour());
                                 mainModel.getMainStatusBarModel().incWebsocketCount();
                                 mainModel.getAnalyzerModel().submitRecord(rec);
                             }
 
-                            if( rec.getTrafficSource().equals(TrafficSource.MANUAL_TEST)) {
+                            if( rec.getTrafficSource().equals(TrafficSource.MANUAL_TEST) && mainModel != null) {
                                 mainModel.getManualTesterModel().addWebsocketTraffic(rec.getWebsocketTrafficRecord().getFrame(),rec.getTestName(),rec.getHighlightColour());
                                 mainModel.getMainStatusBarModel().incManualTestWebsocketCount();
                             }
 
-                            if( rec.getTrafficSource().equals(TrafficSource.AUTOMATED_TEST)) {
+                            if( rec.getTrafficSource().equals(TrafficSource.AUTOMATED_TEST) && mainModel != null) {
                                 mainModel.getAutomatedTesterModel().addWebsocketTraffic(rec.getTestName(),rec.getWebsocketTrafficRecord().getFrame(),rec.getHighlightColour());
                                 mainModel.getMainStatusBarModel().incAutomatedTestWebsocketCount();
                             }
 
-                            if( rec.getTrafficSource().equals(TrafficSource.IMMEDIATE)) {
+                            if( rec.getTrafficSource().equals(TrafficSource.IMMEDIATE) && mainModel != null) {
                                 mainModel.getImmediateModel().addWebsocketTraffic(rec.getWebsocketTrafficRecord().getFrame(),rec.getTestName());
                                 mainModel.getMainStatusBarModel().incImmediateTestWebsocketCount();
                             }
-
                         }
                     }
                 }
@@ -92,7 +104,9 @@ public class TrafficLogQueueProcessorThread extends Thread {
                 }
                 if( System.currentTimeMillis()-lastSync > 1000 ) {
                     lastSync = System.currentTimeMillis();
-                    mainModel.syncActiveConnections();
+                    if ( mainModel != null ) {
+                        mainModel.syncActiveConnections();
+                    }
                 }
             }
         } catch (InterruptedException e) {
