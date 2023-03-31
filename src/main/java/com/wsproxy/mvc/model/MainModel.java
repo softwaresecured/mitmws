@@ -34,6 +34,7 @@ public class MainModel {
     private ProtocolTesterModel protocolTesterModel;
     private ScriptConsoleModel scriptConsoleModel;
     private BreakpointModel breakpointModel;
+    private EncoderDecoderToolModel encoderDecoderToolModel;
 
     // Threads
     private MaintenanceThread maintenanceThread;
@@ -68,8 +69,13 @@ public class MainModel {
         protocolTesterModel = new ProtocolTesterModel();
         scriptConsoleModel = new ScriptConsoleModel();
         breakpointModel = new BreakpointModel();
+        encoderDecoderToolModel = new EncoderDecoderToolModel();
 
         proxy = new HttpProxy(breakpointModel);
+    }
+
+    public EncoderDecoderToolModel getEncoderDecoderToolModel() {
+        return encoderDecoderToolModel;
     }
 
     public BreakpointModel getBreakpointModel() {

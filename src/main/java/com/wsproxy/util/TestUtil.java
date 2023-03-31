@@ -10,6 +10,10 @@ import com.wsproxy.tester.TestTarget;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 
@@ -86,6 +90,61 @@ public final class TestUtil {
         return appliedPayload;
     }
 
+    // TODO
+    public static String decodePayload (PayloadEncoding payloadEncoding, byte[] payload ) {
+        String decodedPayload = null;
+        if ( payload != null ) {
+            if ( payloadEncoding.equals(PayloadEncoding.BASE64)) {
+                try {
+                    decodedPayload = new String(Base64.getDecoder().decode(payload));
+                }
+                catch ( IllegalArgumentException e ) {
+                    ;
+                }
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.URL)) {
+                try {
+                    decodedPayload = URLDecoder.decode(new String(payload),"UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    ;
+                }
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.URLFULL)) {
+                try {
+                    decodedPayload = URLDecoder.decode(new String(payload),"UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    ;
+                }
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.HEX)) {
+
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.XML)) {
+
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.JAVASCRIPT)) {
+
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.HESCAPE)) {
+
+            }
+
+            if ( payloadEncoding.equals(PayloadEncoding.UESCAPE)) {
+
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.RAW)) {
+
+            }
+        }
+        return decodedPayload;
+    }
+
+
+    // TODO
+    public static String encodePayload (PayloadEncoding payloadEncoding, byte[] payload ) {
+        return encodePayload(payloadEncoding,new String(payload));
+    }
+
     public static String encodePayload (PayloadEncoding payloadEncoding, String payload ) {
         String encodedPayload = null;
         if ( payload != null ) {
@@ -93,11 +152,21 @@ public final class TestUtil {
                 encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes());
             }
             if ( payloadEncoding.equals(PayloadEncoding.URL)) {
+                try {
+                    encodedPayload = URLEncoder.encode(payload, StandardCharsets.UTF_8.toString());
+                } catch (UnsupportedEncodingException e) {
+                    ;
+                }
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.URLFULL)) {
                 StringBuilder sb = new StringBuilder();
                 for ( byte b : payload.getBytes() ) {
                     sb.append(String.format("%%%02x", b));
                 }
                 encodedPayload = sb.toString();
+            }
+            if ( payloadEncoding.equals(PayloadEncoding.HEX)) {
+                return GuiUtils.binToHexStr(payload.getBytes(StandardCharsets.UTF_8));
             }
             if ( payloadEncoding.equals(PayloadEncoding.XML)) {
                 // TODO
@@ -107,8 +176,13 @@ public final class TestUtil {
                 encodedPayload = String.valueOf(e.quoteAsString(payload));
 
             }
-            if ( payloadEncoding.equals(PayloadEncoding.HTML)) {
-                // TODO
+            if ( payloadEncoding.equals(PayloadEncoding.HESCAPE)) {
+                return GuiUtils.binToHexStr(payload.getBytes(StandardCharsets.UTF_8),"\\x");
+            }
+
+            if ( payloadEncoding.equals(PayloadEncoding.UESCAPE)) {
+                // TODO FIX TO ACTUALLY SUPPORT MULTIBYTE
+                return GuiUtils.binToHexStr(payload.getBytes(StandardCharsets.UTF_8),"\\u00");
             }
             if ( payloadEncoding.equals(PayloadEncoding.RAW)) {
                 return payload;

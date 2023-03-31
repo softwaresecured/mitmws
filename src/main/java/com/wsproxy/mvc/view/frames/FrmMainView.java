@@ -33,6 +33,7 @@ public class FrmMainView extends JFrame {
     public JMenu mnuEdit = null;
     public JMenu mnuProxy = null;
     public JMenu mnuTestplan = null;
+    public JMenu mnuTools = null;
     public JMenu mnuHelp = null;
     /*
     Main menu items
@@ -49,6 +50,9 @@ public class FrmMainView extends JFrame {
     public JMenuItem mnuProxyStop = new JMenuItem("Stop");
     public JMenuItem mnuExportCa = new JMenuItem("Export CA Certificate");
     public JMenuItem mnuUpdate = new JMenuItem("Update rules/payloads");
+
+    public JMenuItem mnuEncodeDecode = new JMenuItem("Encoder/Decoder");
+
 
     // Popup menu for traffic tables
     public JPopupMenu httpTrafficTableMenu;
@@ -86,6 +90,7 @@ public class FrmMainView extends JFrame {
     public PnlScriptConsole pnlScriptConsole;
     public PnlInteractsh pnlInteractsh;
     public PnlBreakPointsView pnlBreakPointsView;
+    public FrmEncoderDecoderToolView frmEncoderDecoderToolView;
 
 
     public PnlLogs pnlLogs;
@@ -115,7 +120,7 @@ public class FrmMainView extends JFrame {
         pnlInteractsh = new PnlInteractsh(mainModel.getInteractshModel());
         pnlScriptConsole = new PnlScriptConsole();
         pnlProtocolTesterView = new PnlProtocolTesterView(mainModel.getProtocolTesterModel());
-
+        frmEncoderDecoderToolView = new FrmEncoderDecoderToolView(mainModel.getEncoderDecoderToolModel());
 
         jtabMain.addTab("Traffic", null, pnlTrafficView,"HTTP/Websocket traffic");
         jtabMain.addTab("Immediate", null, pnlImmediateView,"Immediate");
@@ -174,6 +179,8 @@ public class FrmMainView extends JFrame {
         mnuTestplan = new JMenu("Tests");
         mnuTestplan.setMnemonic(KeyEvent.VK_T);
 
+        mnuTools = new JMenu("Tools");
+
         mnuHelp = new JMenu("Help");
         mnuHelp.setMnemonic(KeyEvent.VK_H);
 
@@ -182,6 +189,8 @@ public class FrmMainView extends JFrame {
         mnuProxy.add(mnuProxyRestart);
         mnuProxy.add(mnuExportCa);
         mnuHelp.add(mnuUpdate);
+
+        mnuTools.add(mnuEncodeDecode);
 
         mnuItemNewProject = new JMenuItem("New", KeyEvent.VK_C);
         mnuFile.add(mnuItemNewProject);
@@ -208,6 +217,7 @@ public class FrmMainView extends JFrame {
         mnuBarMainMenu.add(mnuEdit);
         mnuBarMainMenu.add(mnuProxy);
         mnuBarMainMenu.add(mnuTestplan);
+        mnuBarMainMenu.add(mnuTools);
         mnuBarMainMenu.add(Box.createHorizontalGlue());
         mnuBarMainMenu.add(mnuHelp);
         this.setJMenuBar(mnuBarMainMenu);
