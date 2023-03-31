@@ -5,6 +5,7 @@ import com.wsproxy.httpproxy.websocket.WebsocketFrame;
 import com.wsproxy.httpproxy.trafficlogger.HttpTrafficRecord;
 import com.wsproxy.httpproxy.trafficlogger.WebsocketDirection;
 import com.wsproxy.httpproxy.trafficlogger.WebsocketTrafficRecord;
+import com.wsproxy.mvc.view.frames.FrmEncoderDecoderToolView;
 import com.wsproxy.projects.ProjectDataServiceException;
 import com.wsproxy.util.FileUtils;
 import com.wsproxy.util.GuiUtils;
@@ -52,6 +53,7 @@ public class MainController implements PropertyChangeListener {
     private ScriptConsoleController scriptConsoleController;
     private InteractshController interactshController;
     private BreakpointController breakpointController;
+    private EncoderDecoderToolController encoderDecoderToolController;
 
     // Threads
     private LogTailerThread logTailerThread;
@@ -82,7 +84,7 @@ public class MainController implements PropertyChangeListener {
         protocolTesterController = new ProtocolTesterController(mainModel,frmMainView.pnlProtocolTesterView);
         scriptConsoleController = new ScriptConsoleController(mainModel.getScriptConsoleModel(),frmMainView.pnlScriptConsole);
         interactshController = new InteractshController(mainModel.getInteractshModel(),mainModel,frmMainView.pnlInteractsh);
-
+        encoderDecoderToolController = new EncoderDecoderToolController(mainModel.getEncoderDecoderToolModel(),frmMainView.frmEncoderDecoderToolView);
         attachListeners();
         initEventListeners();
 
@@ -625,6 +627,13 @@ public class MainController implements PropertyChangeListener {
 
             }
         });
+
+        // Encoder / decoder tool
+        frmMainView.mnuEncodeDecode.addActionListener( actionEvent -> {
+            frmMainView.frmEncoderDecoderToolView.setVisible(true);
+        });
+
+
     }
 
     public void loadTraffic() throws IOException {

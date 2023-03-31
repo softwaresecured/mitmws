@@ -130,13 +130,17 @@ public final class GuiUtils {
     }
 
     public static String binToHexStr( byte buff[] ) {
+        return binToHexStr(buff,"");
+    }
+
+    public static String binToHexStr( byte buff[], String prefix ) {
         String str = null;
         if ( buff != null ) {
             StringBuilder sb = new StringBuilder();
             for ( byte b : buff ) {
-                sb.append(String.format("%02x", b));
+                sb.append(String.format("%s%s", prefix,String.format("%02x", b).toUpperCase()));
             }
-            str = sb.toString().toUpperCase();
+            str = sb.toString();
         }
         return str;
     }
@@ -789,6 +793,13 @@ public final class GuiUtils {
         }
         sorter.setRowFilter(rf);
         tblWebsocketTraffic.setRowSorter(sorter);
+    }
+
+    public static JScrollPane scrollPaneWrap( Component c, int horizontalPolicy, int verticalPolicy ) {
+        JScrollPane scrollPane = new JScrollPane(c);
+        scrollPane.setHorizontalScrollBarPolicy(horizontalPolicy);
+        scrollPane.setVerticalScrollBarPolicy(verticalPolicy);
+        return scrollPane;
     }
 
     public static String uppercaseFirst( String word ) {
