@@ -8,7 +8,7 @@ import com.wsproxy.projects.ProjectDataServiceException;
 import com.wsproxy.util.GuiUtils;
 import com.wsproxy.mvc.model.EnvironmentModel;
 import com.wsproxy.mvc.model.MainModel;
-import com.wsproxy.mvc.view.panels.environment.PnlEnvironmentView;
+import com.wsproxy.mvc.view.frames.FrmEnvironmentView;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -22,36 +22,36 @@ import java.util.regex.PatternSyntaxException;
 
 public class EnvironmentController implements PropertyChangeListener {
 
-    private PnlEnvironmentView pnlEnvironmentView;
+    private FrmEnvironmentView frmEnvironmentView;
     private EnvironmentModel environmentModel;
     private MainModel mainModel;
-    public EnvironmentController(MainModel mainModel, PnlEnvironmentView pnlEnvironmentView) {
+    public EnvironmentController(MainModel mainModel, FrmEnvironmentView frmEnvironmentView) {
         this.mainModel = mainModel;
-        this.pnlEnvironmentView = pnlEnvironmentView;
+        this.frmEnvironmentView = frmEnvironmentView;
         environmentModel = mainModel.getEnvironmentModel();
         loadEnvironment();
         initEventListeners();
         environmentModel.getCurrentEnvironmentVariable().addListener(this);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.setEnabled(true);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.setEnabled(true);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnClear.setEnabled(false);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.setEnabled(false);
-        GuiUtils.tableSelectFirst(pnlEnvironmentView.tblEnvironment);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.setEnabled(true);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.setEnabled(true);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnClear.setEnabled(false);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.setEnabled(false);
+        GuiUtils.tableSelectFirst(frmEnvironmentView.tblEnvironment);
     }
 
     public void initEventListeners() {
         /*
             Environment variable table row select
          */
-        pnlEnvironmentView.tblEnvironment.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int rowId = pnlEnvironmentView.tblEnvironment.getSelectedRow();
+        frmEnvironmentView.tblEnvironment.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+            int rowId = frmEnvironmentView.tblEnvironment.getSelectedRow();
             if ( rowId >= 0 ) {
-                boolean editable = !pnlEnvironmentView.tblEnvironment.getValueAt(rowId, 1).toString().equals("BUILTIN");
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.setEnabled(editable);
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.setEnabled(editable);
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnNew.setEnabled(true);
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.setEnabled(true);
-                String environmentVarName = pnlEnvironmentView.tblEnvironment.getValueAt(rowId, 3).toString();
+                boolean editable = !frmEnvironmentView.tblEnvironment.getValueAt(rowId, 1).toString().equals("BUILTIN");
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.setEnabled(editable);
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.setEnabled(editable);
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnNew.setEnabled(true);
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.setEnabled(true);
+                String environmentVarName = frmEnvironmentView.tblEnvironment.getValueAt(rowId, 3).toString();
                 if (environmentVarName != null) {
                     EnvironmentVariable curVar = environmentModel.getEnvironment().getVariable(environmentVarName);
                     if ( curVar != null ) {
@@ -64,7 +64,7 @@ public class EnvironmentController implements PropertyChangeListener {
         /*
             Variable enable/disable
          */
-        pnlEnvironmentView.tblEnvironment.getModel().addTableModelListener( tableModelEvent -> {
+        frmEnvironmentView.tblEnvironment.getModel().addTableModelListener(tableModelEvent -> {
             if ( tableModelEvent.getColumn() == 0 ) {
                 TableModel model = (TableModel) tableModelEvent.getSource();
                 environmentModel.getCurrentEnvironmentVariable().setEnabled((Boolean) model.getValueAt(tableModelEvent.getFirstRow(), tableModelEvent.getColumn()));
@@ -74,32 +74,32 @@ public class EnvironmentController implements PropertyChangeListener {
         /*
             Test row select
          */
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel().addTableModelListener( tableModelEvent -> {
-            if ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel().getRowCount() > 0 ) {
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnClear.setEnabled(true);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel().addTableModelListener(tableModelEvent -> {
+            if ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel().getRowCount() > 0 ) {
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnClear.setEnabled(true);
             }
         });
         /*
             New variable
          */
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnNew.addActionListener(actionEvent -> {
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnNew.addActionListener(actionEvent -> {
             EnvironmentVariable newVar = new EnvironmentVariable();
             newVar.setName(String.format("Untitled%d", environmentModel.getEnvironment().getEnvironmentVariables().size()));
             newVar.setEnabled(false);
             newVar.setEnvironmentItemScope(EnvironmentItemScope.ALL);
             newVar.setEnvironmentItemType(EnvironmentItemType.VARIABLE_STRING_REPLACEMENT);
             environmentModel.getCurrentEnvironmentVariable().setEnvironmentVariable(newVar);
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setEnabled(true);
-            pnlEnvironmentView.tblEnvironment.clearSelection();
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.setEnabled(false);
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnNew.setEnabled(false);
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.setEnabled(true);
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.setEnabled(true);
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setEnabled(true);
+            frmEnvironmentView.tblEnvironment.clearSelection();
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.setEnabled(false);
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnNew.setEnabled(false);
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.setEnabled(true);
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.setEnabled(true);
         });
         /*
             Save variable
          */
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.addActionListener(actionEvent -> {
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.addActionListener(actionEvent -> {
             environmentModel.getCurrentEnvironmentVariable().setValidationIssues(validateEnvironmentVariable());
             if ( environmentModel.getCurrentEnvironmentVariable().getValidationIssues().size() == 0 ) {
                 saveCurrentEnvironmentVariable();
@@ -109,8 +109,8 @@ public class EnvironmentController implements PropertyChangeListener {
         /*
             Delete variable
          */
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.addActionListener( actionEvent -> {
-            String deleteVar = pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText();
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.addActionListener(actionEvent -> {
+            String deleteVar = frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText();
             environmentModel.getEnvironment().deleteVariable(deleteVar);
             for ( int i = 0; i < environmentModel.getEnvironmentTableModel().getRowCount(); i++ ) {
                 String varName = (String) environmentModel.getEnvironmentTableModel().getValueAt(i,3);
@@ -128,8 +128,8 @@ public class EnvironmentController implements PropertyChangeListener {
         /*
             Test
          */
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.addActionListener(actionEvent -> {
-            DefaultTableModel trafficModel = (DefaultTableModel) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel();
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnTest.addActionListener(actionEvent -> {
+            DefaultTableModel trafficModel = (DefaultTableModel) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel();
             EnvironmentVariable currentEnvironmentVariable = environmentModel.getCurrentEnvironmentVariable().getEnvironmentVariable();
             if ( currentEnvironmentVariable != null ) {
                 currentEnvironmentVariable.setStoredVariable(null);
@@ -171,12 +171,12 @@ public class EnvironmentController implements PropertyChangeListener {
             }
         });
 
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jcmbEnvItemType.addActionListener(actionEvent -> {
-            environmentModel.getCurrentEnvironmentVariable().setEnvironmentItemType(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.getSelectedEnvVarItemType());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jcmbEnvItemType.addActionListener(actionEvent -> {
+            environmentModel.getCurrentEnvironmentVariable().setEnvironmentItemType(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.getSelectedEnvVarItemType());
         });
 
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnClear.addActionListener(actionEvent -> {
-            DefaultTableModel model = (DefaultTableModel) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel();
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.pnlEnvironmentVariableRegexTesterToolbar.btnClear.addActionListener(actionEvent -> {
+            DefaultTableModel model = (DefaultTableModel) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentVariableRegexTester.tblEnvVarTest.getModel();
             model.setRowCount(0);
         });
     }
@@ -203,34 +203,34 @@ public class EnvironmentController implements PropertyChangeListener {
             }
 
             // Env var header
-            currentEnvironmentVariable.setEnvironmentItemType(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.getSelectedEnvVarItemType());
-            currentEnvironmentVariable.setName(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText());
-            currentEnvironmentVariable.setDescription(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtDescription.getText());
+            currentEnvironmentVariable.setEnvironmentItemType(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.getSelectedEnvVarItemType());
+            currentEnvironmentVariable.setName(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText());
+            currentEnvironmentVariable.setDescription(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtDescription.getText());
 
             // String variable
-            currentEnvironmentVariable.setStringReplacementText(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.getText());
-            currentEnvironmentVariable.setStringReplacementMatchText(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementMatch.getText());
+            currentEnvironmentVariable.setStringReplacementText(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.getText());
+            currentEnvironmentVariable.setStringReplacementMatchText(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementMatch.getText());
 
             // Regex variable
-            currentEnvironmentVariable.setMatchRegexGroup((Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.getValue());
-            currentEnvironmentVariable.setRegexMatchGroupEnabled(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.isSelected());
-            currentEnvironmentVariable.setRegexStringReplacementText(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtRegexReplacementText.getText());
-            currentEnvironmentVariable.setMatchRegexPattern(GuiUtils.getPattern(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.getText()));
+            currentEnvironmentVariable.setMatchRegexGroup((Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.getValue());
+            currentEnvironmentVariable.setRegexMatchGroupEnabled(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.isSelected());
+            currentEnvironmentVariable.setRegexStringReplacementText(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtRegexReplacementText.getText());
+            currentEnvironmentVariable.setMatchRegexPattern(GuiUtils.getPattern(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.getText()));
 
             // Script variable
-            currentEnvironmentVariable.setScriptMatchRegexGroup((Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.getValue());
-            if ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.getSelectedItem() != null ) {
-                currentEnvironmentVariable.setScriptName(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.getSelectedItem().toString());
+            currentEnvironmentVariable.setScriptMatchRegexGroup((Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.getValue());
+            if ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.getSelectedItem() != null ) {
+                currentEnvironmentVariable.setScriptName(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.getSelectedItem().toString());
             }
 
-            currentEnvironmentVariable.setScriptMatchRegex(GuiUtils.getPattern(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.getText()));
+            currentEnvironmentVariable.setScriptMatchRegex(GuiUtils.getPattern(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.getText()));
 
 
             // Session variable
-            currentEnvironmentVariable.setInputRegexMatchGroup((Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.getValue());
-            currentEnvironmentVariable.setOutputRegexMatchGroup((Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.getValue());
-            currentEnvironmentVariable.setInputRegexPattern(GuiUtils.getPattern(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.getText()));
-            currentEnvironmentVariable.setOutputRegexPattern(GuiUtils.getPattern(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.getText()));
+            currentEnvironmentVariable.setInputRegexMatchGroup((Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.getValue());
+            currentEnvironmentVariable.setOutputRegexMatchGroup((Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.getValue());
+            currentEnvironmentVariable.setInputRegexPattern(GuiUtils.getPattern(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.getText()));
+            currentEnvironmentVariable.setOutputRegexPattern(GuiUtils.getPattern(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.getText()));
             environmentModel.getEnvironment().setVariable(currentEnvironmentVariable);
 
             //loadVariableFields(currentEnvironmentVariable);
@@ -246,13 +246,13 @@ public class EnvironmentController implements PropertyChangeListener {
     public void syncEnvironmentTable() {
         for ( EnvironmentVariable envVar : environmentModel.getEnvironment().getEnvironmentVariables()) {
             boolean updated = false;
-            for ( int i = 0; i < pnlEnvironmentView.tblEnvironment.getRowCount(); i++ ) {
-                String varName = (String) pnlEnvironmentView.tblEnvironment.getValueAt(i,3);
+            for (int i = 0; i < frmEnvironmentView.tblEnvironment.getRowCount(); i++ ) {
+                String varName = (String) frmEnvironmentView.tblEnvironment.getValueAt(i,3);
                 if (varName.equals(envVar.getName())) {
-                    pnlEnvironmentView.tblEnvironment.setValueAt( envVar.isEnabled(),i,0);
-                    pnlEnvironmentView.tblEnvironment.setValueAt( envVar.getEnvironmentItemType().toString(),i,1);
-                    pnlEnvironmentView.tblEnvironment.setValueAt( envVar.getEnvironmentItemScope().toString(),i,2);
-                    pnlEnvironmentView.tblEnvironment.setValueAt( envVar.getName(),i,3);
+                    frmEnvironmentView.tblEnvironment.setValueAt( envVar.isEnabled(),i,0);
+                    frmEnvironmentView.tblEnvironment.setValueAt( envVar.getEnvironmentItemType().toString(),i,1);
+                    frmEnvironmentView.tblEnvironment.setValueAt( envVar.getEnvironmentItemScope().toString(),i,2);
+                    frmEnvironmentView.tblEnvironment.setValueAt( envVar.getName(),i,3);
                     updated = true;
                 }
             }
@@ -263,30 +263,30 @@ public class EnvironmentController implements PropertyChangeListener {
                         envVar.getEnvironmentItemScope().toString(),
                         envVar.getName()
                 });
-                GuiUtils.tableSelectLast(pnlEnvironmentView.tblEnvironment);
+                GuiUtils.tableSelectLast(frmEnvironmentView.tblEnvironment);
             }
         }
 
     }
 
     public void selectEditor() {
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.setVisible(false);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.setVisible(false);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.setVisible(false);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.setVisible(false);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.setVisible(false);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.setVisible(false);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.setVisible(false);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.setVisible(false);
         EnvironmentVariable envVar = environmentModel.getCurrentEnvironmentVariable().getEnvironmentVariable();
         switch ( envVar.getEnvironmentItemType() ) {
             case VARIABLE_STRING_REPLACEMENT:
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.setVisible(true);
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.setVisible(true);
                 break;
             case VARIABLE_REGEX_REPLACEMENT:
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.setVisible(true);
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.setVisible(true);
                 break;
             case VARIABLE_SESSION:
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.setVisible(true);
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.setVisible(true);
                 break;
             case VARIABLE_SCRIPT:
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.setVisible(true);
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.setVisible(true);
                 break;
         }
     }
@@ -297,50 +297,50 @@ public class EnvironmentController implements PropertyChangeListener {
     public ArrayList<String> validateEnvironmentVariable() {
         Pattern pattern;
         ArrayList<String> validationIssues = new ArrayList<>();
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setBackground(Color.WHITE);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setBackground(Color.WHITE);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setBackground(Color.WHITE);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(Color.WHITE);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(Color.WHITE);
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setBackground(Color.WHITE);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setBackground(Color.WHITE);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setBackground(Color.WHITE);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setBackground(Color.WHITE);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(Color.WHITE);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(Color.WHITE);
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setBackground(Color.WHITE);
 
 
         // Variable name - uniqueness
-        String curVarName = pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText();
+        String curVarName = frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText();
         EnvironmentVariable nameCheck = environmentModel.getEnvironment().getVariable(curVarName);
         if ( nameCheck != null ) {
             if ( !nameCheck.getId().equals(environmentModel.getCurrentEnvironmentVariable().getEnvironmentVariable().getId()) ) {
                 validationIssues.add("The variable name must be unique");
-                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setBackground(new Color(240, 128, 128));
+                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setBackground(new Color(240, 128, 128));
             }
         }
 
         // Variable name - length
-        if ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText().length() == 0 ) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setBackground(new Color(240,128,128));
+        if ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.getText().length() == 0 ) {
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setBackground(new Color(240,128,128));
             validationIssues.add("The environment variable requires a name");
         }
         // Variable content
         if ( environmentModel.getCurrentEnvironmentVariable().getEnvironmentVariable() != null ) {
-            switch (pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.getSelectedEnvVarItemType()) {
+            switch (frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.getSelectedEnvVarItemType()) {
                 case VARIABLE_STRING_REPLACEMENT:
-                    if ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.getText().length() == 0 ) {
-                        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setBackground(new Color(240, 128, 128));
+                    if ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.getText().length() == 0 ) {
+                        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setBackground(new Color(240, 128, 128));
                         validationIssues.add("Replacement string required");
                     }
                     break;
                 case VARIABLE_REGEX_REPLACEMENT:
-                    if  ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.getText().length() > 0 ) {
+                    if  ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.getText().length() > 0 ) {
                         try {
-                            pattern = Pattern.compile(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.getText());
+                            pattern = Pattern.compile(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.getText());
                             // if using groups
-                            if ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.isSelected()) {
+                            if ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.isSelected()) {
                                 if ( GuiUtils.getMatchGroupCount(pattern) > 0 ) {
-                                    if ( (Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
+                                    if ( (Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
                                         validationIssues.add("The match target match group is not within range of the match groups provided by the regex");                                }
                                 }
                                 else {
-                                    pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setBackground(Color.YELLOW);
+                                    frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setBackground(Color.YELLOW);
                                     validationIssues.add("The match input regex needs a match group");
                                 }
                             }
@@ -349,71 +349,71 @@ public class EnvironmentController implements PropertyChangeListener {
                             }
                         }
                         catch ( PatternSyntaxException e ) {
-                            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setBackground(new Color(240,128,128));
+                            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setBackground(new Color(240,128,128));
                             validationIssues.add("Bad regex");
                         }
                     }
                     break;
                 case VARIABLE_SESSION:
                     // The input pattern
-                    if  ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.getText().length() > 0 ) {
+                    if  ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.getText().length() > 0 ) {
                         try {
-                            pattern = Pattern.compile(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.getText());
+                            pattern = Pattern.compile(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.getText());
                             if ( GuiUtils.getMatchGroupCount(pattern) > 0 ) {
-                                if ( (Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
-                                    pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(Color.YELLOW);
+                                if ( (Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
+                                    frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(Color.YELLOW);
                                     validationIssues.add("The input target match group is not within range of the match groups provided by the regex");
                                 }
                             }
                             else {
-                                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(Color.YELLOW);
+                                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(Color.YELLOW);
                                 validationIssues.add("The input regex needs a match group");
                             }
 
                         }
                         catch ( PatternSyntaxException e ) {
-                            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(new Color(240,128,128));
+                            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setBackground(new Color(240,128,128));
                             validationIssues.add("Bad regex");
                         }
                     }
 
                     // The output pattern
-                    if ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.getText().length() > 0 ) {
+                    if ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.getText().length() > 0 ) {
                         try {
-                            pattern = GuiUtils.getPattern(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.getText());
+                            pattern = GuiUtils.getPattern(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.getText());
                             if ( GuiUtils.getMatchGroupCount(pattern) > 0 ) {
-                                if ( (Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
-                                    pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(Color.YELLOW);
+                                if ( (Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
+                                    frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(Color.YELLOW);
                                     validationIssues.add("The output target match group is not within range of the match groups provided by the regex");
                                 }
                             }
                             else {
-                                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(Color.YELLOW);
+                                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(Color.YELLOW);
                                 validationIssues.add("The output regex needs a match group");
                             }
                         }
                         catch ( PatternSyntaxException e ) {
-                            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(new Color(240,128,128));
+                            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setBackground(new Color(240,128,128));
                             validationIssues.add("Bad regex");
                         }
                     }
                     break;
                 case VARIABLE_SCRIPT:
-                    if  ( pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.getText().length() > 0 ) {
+                    if  ( frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.getText().length() > 0 ) {
                         try {
-                            pattern = Pattern.compile(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.getText());
+                            pattern = Pattern.compile(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.getText());
                             if ( GuiUtils.getMatchGroupCount(pattern) > 0 ) {
-                                if ( (Integer) pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
+                                if ( (Integer) frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.getValue() > GuiUtils.getMatchGroupCount(pattern) || GuiUtils.getMatchGroupCount(pattern) == 0 ) {
                                     validationIssues.add("The match target match group is not within range of the match groups provided by the regex");                                }
                             }
                             else {
-                                pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setBackground(Color.YELLOW);
+                                frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setBackground(Color.YELLOW);
                                 validationIssues.add("The match input regex needs a match group");
                             }
 
                         }
                         catch ( PatternSyntaxException e ) {
-                            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setBackground(new Color(240,128,128));
+                            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setBackground(new Color(240,128,128));
                             validationIssues.add("Bad regex");
                         }
                     }
@@ -428,63 +428,63 @@ public class EnvironmentController implements PropertyChangeListener {
         // Current variable
         EnvironmentVariable envVar = environmentModel.getCurrentEnvironmentVariable().getEnvironmentVariable();
         if ( "EnvironmentVariableModel.name".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setText(envVar.getName());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setText(envVar.getName());
         }
 
         if ( "EnvironmentVariableModel.description".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtDescription.setText(envVar.getDescription());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtDescription.setText(envVar.getDescription());
         }
 
         if ( "EnvironmentVariableModel.enabled".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setEnabled(false);
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setEnabled(false);
         }
         if ( "EnvironmentVariableModel.environmentItemScope".equals(propertyChangeEvent.getPropertyName())) {
-            GuiUtils.setComboBoxItem(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jcmbEnvItemScope, envVar.getEnvironmentItemScope().toString());
+            GuiUtils.setComboBoxItem(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jcmbEnvItemScope, envVar.getEnvironmentItemScope().toString());
         }
         if ( "EnvironmentVariableModel.environmentItemType".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.selectVarTypeByEnumName(envVar.getEnvironmentItemType());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.selectVarTypeByEnumName(envVar.getEnvironmentItemType());
             selectEditor();
         }
         if ( "EnvironmentVariableModel.inputRegexMatchGroup".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.setValue(envVar.getInputRegexMatchGroup());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.setValue(envVar.getInputRegexMatchGroup());
         }
         if ( "EnvironmentVariableModel.outputRegexMatchGroup".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.setValue(envVar.getOutputRegexMatchGroup());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.setValue(envVar.getOutputRegexMatchGroup());
         }
         if ( "EnvironmentVariableModel.inputRegexPattern".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setText(GuiUtils.getPatternString(envVar.getInputRegexPattern()));
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setText(GuiUtils.getPatternString(envVar.getInputRegexPattern()));
         }
         if ( "EnvironmentVariableModel.outputRegexPattern".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setText(GuiUtils.getPatternString(envVar.getOutputRegexPattern()));
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setText(GuiUtils.getPatternString(envVar.getOutputRegexPattern()));
         }
         if ( "EnvironmentVariableModel.storedVariable".equals(propertyChangeEvent.getPropertyName())) {
         }
         if ( "EnvironmentVariableModel.regexStringReplacementText".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setText(envVar.getStringReplacementText());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setText(envVar.getStringReplacementText());
         }
         if ( "EnvironmentVariableModel.stringReplacementMatchText".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementMatch.setText(envVar.getStringReplacementMatchText());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementMatch.setText(envVar.getStringReplacementMatchText());
         }
         if ( "EnvironmentVariableModel.matchRegexPattern".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setText(GuiUtils.getPatternString(envVar.getMatchRegexPattern()));
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setText(GuiUtils.getPatternString(envVar.getMatchRegexPattern()));
         }
         if ( "EnvironmentVariableModel.matchRegexGroup".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.setValue(envVar.getMatchRegexGroup());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.setValue(envVar.getMatchRegexGroup());
         }
         if ( "EnvironmentVariableModel.regexMatchGroupEnabled".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.setSelected(envVar.getRegexMatchGroupEnabled());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.setSelected(envVar.getRegexMatchGroupEnabled());
         }
         if ( "EnvironmentVariableModel.regexStringReplacementText".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtRegexReplacementText.setText(envVar.getRegexStringReplacementText());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtRegexReplacementText.setText(envVar.getRegexStringReplacementText());
         }
         if ( "EnvironmentVariableModel.scriptMatchRegex".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setText(GuiUtils.getPatternString(envVar.getScriptMatchRegex()));
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setText(GuiUtils.getPatternString(envVar.getScriptMatchRegex()));
         }
         if ( "EnvironmentVariableModel.scriptName".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.setSelectedItem(envVar.getScriptName());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.setSelectedItem(envVar.getScriptName());
         }
         if ( "EnvironmentVariableModel.scriptMatchRegexGroup".equals(propertyChangeEvent.getPropertyName())) {
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.setValue(envVar.getScriptMatchRegexGroup());
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.setValue(envVar.getScriptMatchRegexGroup());
         }
 
         if ( "EnvironmentVariableModel.environmentVariable".equals(propertyChangeEvent.getPropertyName())) {
@@ -496,7 +496,7 @@ public class EnvironmentController implements PropertyChangeListener {
             for ( String validationIssue : environmentModel.getCurrentEnvironmentVariable().getValidationIssues() ) {
                 errorStr += String.format("%s\n", validationIssue);
             }
-            pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.jtxtValidationIssues.setText(errorStr);
+            frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.jtxtValidationIssues.setText(errorStr);
         }
 
 
@@ -504,24 +504,24 @@ public class EnvironmentController implements PropertyChangeListener {
 
     }
     public void loadEnvironmentVariable( EnvironmentVariable envVar) {
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setText(envVar.getName());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtDescription.setText(envVar.getDescription());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setEnabled(false);
-        GuiUtils.setComboBoxItem(pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jcmbEnvItemScope, envVar.getEnvironmentItemScope().toString());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.selectVarTypeByEnumName(envVar.getEnvironmentItemType());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.setValue(envVar.getInputRegexMatchGroup());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.setValue(envVar.getOutputRegexMatchGroup());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setText(GuiUtils.getPatternString(envVar.getInputRegexPattern()));
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setText(GuiUtils.getPatternString(envVar.getOutputRegexPattern()));
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setText(envVar.getStringReplacementText());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementMatch.setText(envVar.getStringReplacementMatchText());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setText(GuiUtils.getPatternString(envVar.getMatchRegexPattern()));
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.setValue(envVar.getMatchRegexGroup());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.setSelected(envVar.getRegexMatchGroupEnabled());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtRegexReplacementText.setText(envVar.getRegexStringReplacementText());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setText(GuiUtils.getPatternString(envVar.getScriptMatchRegex()));
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.setSelectedItem(envVar.getScriptName());
-        pnlEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.setValue(envVar.getScriptMatchRegexGroup());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setText(envVar.getName());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtDescription.setText(envVar.getDescription());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jtxtEnvVarName.setEnabled(false);
+        GuiUtils.setComboBoxItem(frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.jcmbEnvItemScope, envVar.getEnvironmentItemScope().toString());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemEditor.selectVarTypeByEnumName(envVar.getEnvironmentItemType());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnInputMatchGroup.setValue(envVar.getInputRegexMatchGroup());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jspnOutputMatchGroup.setValue(envVar.getOutputRegexMatchGroup());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexInput.setText(GuiUtils.getPatternString(envVar.getInputRegexPattern()));
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlSessionReplacement.jtxtRegexOutput.setText(GuiUtils.getPatternString(envVar.getOutputRegexPattern()));
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementText.setText(envVar.getStringReplacementText());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlStringReplacement.jtxtStringReplacementMatch.setText(envVar.getStringReplacementMatchText());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtMatchRegex.setText(GuiUtils.getPatternString(envVar.getMatchRegexPattern()));
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jspnMatchRegexGroup.setValue(envVar.getMatchRegexGroup());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jchkMatchGroup.setSelected(envVar.getRegexMatchGroupEnabled());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlRegexReplacement.jtxtRegexReplacementText.setText(envVar.getRegexStringReplacementText());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jtxtScriptMatchRegex.setText(GuiUtils.getPatternString(envVar.getScriptMatchRegex()));
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jcmbScripts.setSelectedItem(envVar.getScriptName());
+        frmEnvironmentView.pnlEnvironmentEditor.pnlEnvironmentItemVariableEditor.pnlScriptReplacement.jspnScriptMatchRegexGroup.setValue(envVar.getScriptMatchRegexGroup());
         selectEditor();
     }
 }

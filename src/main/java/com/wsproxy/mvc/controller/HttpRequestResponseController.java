@@ -137,7 +137,6 @@ public class HttpRequestResponseController implements PropertyChangeListener {
                 httpRequestResponseModel.setUseUpgradeScript(false);
                 loadRequest(httpRequestResponseModel.getSavedRequest());
             }
-
         });
 
         // Select script
@@ -157,10 +156,42 @@ public class HttpRequestResponseController implements PropertyChangeListener {
         pnlHttpRequestResponse.jcmbHttpUpgradeMessageMethod.addActionListener( actionEvent -> {
             httpRequestResponseModel.setMethod(pnlHttpRequestResponse.jcmbHttpUpgradeMessageMethod.getSelectedItem().toString());
         });
+
+        pnlHttpRequestResponse.jbtnReloadScripts.addActionListener( actionEvent -> {
+            reloadScripts();
+        });
+    }
+
+    public void reloadScripts() {
+        pnlHttpRequestResponse.pnlUpgradeRequestScriptConfig.reloadScripts();
+        if ( httpRequestResponseModel.getUpgradeScriptName() != null ) {
+            GuiUtils.setComboBoxItem(pnlHttpRequestResponse.pnlUpgradeRequestScriptConfig.jcmbUpgradeScripts,httpRequestResponseModel.getUpgradeScriptName());
+        }
     }
 
     public HttpRequestResponseModel getHttpRequestResponseModel() {
         return httpRequestResponseModel;
+    }
+
+    public HttpMessage processUpgradeScript( String selectedScript ) {
+        try {
+            Script upgradeScript = scriptManager.getScript("upgrade", selectedScript);
+            String upgradeRequestStr = (String) upgradeScript.executeFunction("execute");
+            if ( upgradeRequestStr != null ) {
+                HttpMessage upgradeRequest = new HttpMessage();
+                upgradeRequest.fromBytes(upgradeRequestStr.getBytes());
+                if ( upgradeRequest != null ) {
+                    if ( upgradeRequest.getUrl() != null ) {
+                        return upgradeRequest;
+                    }
+                }
+            }
+        } catch (IllegalArgumentException | HttpMessageParseException e) {
+            e.printStackTrace();
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -169,22 +200,9 @@ public class HttpRequestResponseController implements PropertyChangeListener {
         if ( "HttpRequestResponseModel.upgradeScriptName".equals(propertyChangeEvent.getPropertyName())) {
             if (propertyChangeEvent.getNewValue() != null) {
                 String selectedScript = (String) pnlHttpRequestResponse.pnlUpgradeRequestScriptConfig.jcmbUpgradeScripts.getSelectedItem();
-                try {
-                    Script upgradeScript = scriptManager.getScript("upgrade", selectedScript);
-                    String upgradeRequestStr = (String) upgradeScript.executeFunction("execute");
-                    if ( upgradeRequestStr != null ) {
-                        HttpMessage upgradeRequest = new HttpMessage();
-                        upgradeRequest.fromBytes(upgradeRequestStr.getBytes());
-                        if ( upgradeRequest != null ) {
-                            if ( upgradeRequest.getUrl() != null ) {
-                                loadRequest(upgradeRequest);
-                            }
-                        }
-                    }
-                } catch (IllegalArgumentException | HttpMessageParseException e) {
-                    e.printStackTrace();
-                } catch (ScriptException e) {
-                    e.printStackTrace();
+                HttpMessage upgradeRequest = processUpgradeScript(selectedScript);
+                if ( upgradeRequest != null ) {
+                    loadRequest(upgradeRequest);
                 }
             }
         }

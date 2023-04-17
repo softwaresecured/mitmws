@@ -1,20 +1,25 @@
-package com.wsproxy.mvc.view.panels.updates;
+package com.wsproxy.mvc.view.frames;
 
 import com.wsproxy.mvc.model.UpdatesModel;
+import com.wsproxy.mvc.view.panels.updates.PnlUpdateContentViewer;
+import com.wsproxy.mvc.view.panels.updates.PnlUpdatesTableViewer;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class PnlUpdatesView extends JPanel {
+public class FrmUpdatesView extends JFrame {
     private UpdatesModel updatesModel;
     public JSplitPane splt;
     public PnlUpdateContentViewer pnlUpdateContentViewer = new PnlUpdateContentViewer();
     public PnlUpdatesTableViewer pnlUpdatesTableViewer;
-    public PnlUpdatesView(UpdatesModel updatesModel) {
+    public FrmUpdatesView(UpdatesModel updatesModel) {
         this.updatesModel = updatesModel;
         initLayout();
     }
     public void initLayout() {
+        setTitle("Updates");
+        setSize(800,600);
+
         pnlUpdatesTableViewer = new PnlUpdatesTableViewer(updatesModel);
         splt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,pnlUpdatesTableViewer, pnlUpdateContentViewer);
         setLayout(new GridBagLayout());

@@ -11,6 +11,7 @@ import com.wsproxy.projects.ProjectDataServiceException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 /*
     Runs on one or more conversations
@@ -56,7 +57,7 @@ public class ActiveAnomalyDetectorThread extends Thread {
         LOGGER.info("Active anomaly detector started");
         while ( !shutdownRequested ) {
             try {
-                AnomalyScanRequest anomalyScanRequest = (AnomalyScanRequest) mainModel.getProjectModel().getActiveAnomalyScanQueue().poll();
+                AnomalyScanRequest anomalyScanRequest = (AnomalyScanRequest) mainModel.getProjectModel().getActiveAnomalyScanQueue().poll(1, TimeUnit.SECONDS);
                 if ( anomalyScanRequest != null ) {
                     LOGGER.info(String.format("Processing batch %s/%d - %d conversations", anomalyScanRequest.getTestName(),anomalyScanRequest.getRuleId(), anomalyScanRequest.getConversationUuids().size()));
                     ArrayList<ArrayList<WebsocketTrafficRecord>> conversations = loadConversations(anomalyScanRequest.getConversationUuids().toArray(new String[0]));
@@ -69,10 +70,9 @@ public class ActiveAnomalyDetectorThread extends Thread {
                         }
                     }
                 }
-
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+
             }
         }
         LOGGER.info("Active anomaly detector stopped");

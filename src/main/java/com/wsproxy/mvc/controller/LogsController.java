@@ -1,7 +1,7 @@
 package com.wsproxy.mvc.controller;
 
 import com.wsproxy.mvc.model.LogModel;
-import com.wsproxy.mvc.view.panels.logs.PnlLogs;
+import com.wsproxy.mvc.view.frames.FrmLogsView;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -9,11 +9,11 @@ import java.beans.PropertyChangeListener;
 public class LogsController implements PropertyChangeListener {
 
     private LogModel logModel;
-    private PnlLogs pnlLogs;
+    private FrmLogsView frmLogsView;
 
-    public LogsController(LogModel logModel, PnlLogs pnlLogs) {
+    public LogsController(LogModel logModel, FrmLogsView frmLogsView) {
         this.logModel = logModel;
-        this.pnlLogs = pnlLogs;
+        this.frmLogsView = frmLogsView;
         this.logModel.addListener(this);
     }
 
@@ -21,7 +21,7 @@ public class LogsController implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
         if ( "LogModel.lastMessage".equals(propertyChangeEvent.getPropertyName())) {
             if ( propertyChangeEvent.getNewValue() != null ) {
-                pnlLogs.jtxtLogs.append(String.format("%s\n", (String)propertyChangeEvent.getNewValue()));
+                frmLogsView.jtxtLogs.append(String.format("%s\n", (String)propertyChangeEvent.getNewValue()));
             }
         }
     }

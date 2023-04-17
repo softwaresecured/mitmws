@@ -13,6 +13,14 @@ public class PnlUpgradeRequestScriptConfig extends JPanel {
     public JComboBox jcmbEventScripts = new JComboBox();
 
     public PnlUpgradeRequestScriptConfig() {
+        initLayout();
+        reloadScripts();
+    }
+
+    public void reloadScripts() {
+
+        jcmbEventScripts.removeAll();
+        jcmbUpgradeScripts.removeAll();
         ArrayList<String> scripts = ScriptUtil.getScriptsByType("upgrade");
         for ( String script : scripts ) {
             jcmbUpgradeScripts.addItem(script);
@@ -21,7 +29,6 @@ public class PnlUpgradeRequestScriptConfig extends JPanel {
         for ( String script : scripts ) {
             jcmbEventScripts.addItem(script);
         }
-        initLayout();
     }
 
     public void initLayout() {

@@ -1,19 +1,21 @@
-package com.wsproxy.mvc.view.panels.rules;
+package com.wsproxy.mvc.view.frames;
 import com.wsproxy.mvc.model.RulesModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.EventObject;
 
-public class PnlRulesView extends JPanel {
+public class FrmRulesView extends JFrame {
     public JTable jtblDetectionRules;
     private RulesModel rulesModel;
-    public PnlRulesView(RulesModel rulesModel) {
+    public FrmRulesView(RulesModel rulesModel) {
         this.rulesModel = rulesModel;
         initLayout();
     }
 
     public void initLayout() {
+        setTitle("Rules");
+        setSize(800,600);
+
         jtblDetectionRules = new JTable(rulesModel.getDetectionRuleTableModel()) {
             @Override
             public Class getColumnClass(int column) {

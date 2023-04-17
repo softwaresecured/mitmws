@@ -1,14 +1,10 @@
 package com.wsproxy.mvc.controller;
 
 import com.wsproxy.integrations.python.Script;
-import com.wsproxy.mvc.model.LogModel;
 import com.wsproxy.mvc.model.ScriptConsoleModel;
-import com.wsproxy.mvc.view.panels.logs.PnlLogs;
-import com.wsproxy.mvc.view.panels.scriptconsole.PnlScriptConsole;
+import com.wsproxy.mvc.view.frames.FrmScriptConsole;
 
 import javax.script.ScriptException;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -17,11 +13,11 @@ import java.beans.PropertyChangeListener;
 public class ScriptConsoleController implements PropertyChangeListener {
 
     private ScriptConsoleModel scriptConsoleModel;
-    private PnlScriptConsole pnlScriptConsole;
+    private FrmScriptConsole frmScriptConsole;
 
-    public ScriptConsoleController(ScriptConsoleModel scriptConsoleModel, PnlScriptConsole pnlScriptConsole) {
+    public ScriptConsoleController(ScriptConsoleModel scriptConsoleModel, FrmScriptConsole frmScriptConsole) {
         this.scriptConsoleModel = scriptConsoleModel;
-        this.pnlScriptConsole = pnlScriptConsole;
+        this.frmScriptConsole = frmScriptConsole;
         this.scriptConsoleModel.addListener(this);
         this.scriptConsoleModel.setScriptContent("def main():\n\tprint(\"hello\")\n");
         initEventListeners();
@@ -30,19 +26,19 @@ public class ScriptConsoleController implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
         if ( "ScriptConsoleModel.scriptContent".equals(propertyChangeEvent.getPropertyName())) {
-            pnlScriptConsole.jtxtScriptContent.setText((String) propertyChangeEvent.getNewValue());
+            frmScriptConsole.jtxtScriptContent.setText((String) propertyChangeEvent.getNewValue());
         }
         if ( "ScriptConsoleModel.executionOutput".equals(propertyChangeEvent.getPropertyName())) {
-            pnlScriptConsole.jtxtScriptOutput.setText((String) propertyChangeEvent.getNewValue());
+            frmScriptConsole.jtxtScriptOutput.setText((String) propertyChangeEvent.getNewValue());
         }
     }
 
     private void initEventListeners() {
-        pnlScriptConsole.btnExecute.addActionListener(new ActionListener() {
+        frmScriptConsole.btnExecute.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Script script = new Script();
-                scriptConsoleModel.setScriptContent(pnlScriptConsole.jtxtScriptContent.getText());
+                scriptConsoleModel.setScriptContent(frmScriptConsole.jtxtScriptContent.getText());
                 try {
                     script.evalJython(scriptConsoleModel.getScriptContent());
                     String result = (String) script.executeFunction("main",null);

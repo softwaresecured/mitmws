@@ -5,9 +5,14 @@ import com.wsproxy.mvc.model.BreakpointModel;
 import com.wsproxy.mvc.thread.TrafficLogQueueProcessorThread;
 import com.wsproxy.projects.ProjectDataService;
 import com.wsproxy.projects.ProjectDataServiceException;
+import com.wsproxy.trafficanalysis.Analyzer;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import static java.lang.System.exit;
 
 public class WsProxyHeadless {
     private String projectFile = null;

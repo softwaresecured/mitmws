@@ -27,8 +27,6 @@ public class FrmEncoderDecoderToolView extends JFrame {
     public void initLayout() {
         setTitle("Encoder/decoder");
         setSize(800,600);
-        setPreferredSize(new Dimension(800,600));
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         // Main layout
 
         // Input section

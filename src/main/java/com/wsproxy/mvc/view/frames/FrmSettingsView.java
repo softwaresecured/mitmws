@@ -1,17 +1,13 @@
-package com.wsproxy.mvc.view.panels.settings;
+package com.wsproxy.mvc.view.frames;
 import com.wsproxy.mvc.model.SettingsModel;
 import javax.swing.*;
-import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EventObject;
 
-public class PnlSettingsView extends JPanel {
+public class FrmSettingsView extends JFrame {
 
     private final String DEFAULT_HTTP_TEST_URL = "https://example.com";
 
@@ -21,13 +17,14 @@ public class PnlSettingsView extends JPanel {
     public JTable tblSettings;
     public SettingsModel settingsModel;
 
-    public PnlSettingsView(SettingsModel settingsModel) {
+    public FrmSettingsView(SettingsModel settingsModel) {
         this.settingsModel = settingsModel;
         initLayout();
     }
 
     public void initLayout() {
-
+        setTitle("Settings");
+        setSize(800,600);
         tblSettings = new JTable(settingsModel.getSettingsTableModel()) {
             public boolean isCellEditable(int row, int column)
             {

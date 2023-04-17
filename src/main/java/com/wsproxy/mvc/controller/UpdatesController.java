@@ -2,7 +2,7 @@ package com.wsproxy.mvc.controller;
 
 import com.wsproxy.configuration.ApplicationConfig;
 import com.wsproxy.mvc.model.UpdatesModel;
-import com.wsproxy.mvc.view.panels.updates.PnlUpdatesView;
+import com.wsproxy.mvc.view.frames.FrmUpdatesView;
 import com.wsproxy.updates.UpdateManager;
 import com.wsproxy.util.FileUtils;
 import com.wsproxy.util.GuiUtils;
@@ -26,13 +26,13 @@ import java.util.HashMap;
 
 public class UpdatesController implements PropertyChangeListener {
     private UpdatesModel updatesModel;
-    private PnlUpdatesView pnlUpdatesView;
+    private FrmUpdatesView frmUpdatesView;
     private ApplicationConfig applicationConfig = new ApplicationConfig();
     private UpdateManager updateManager = new UpdateManager();
     private JFrame parent;
-    public UpdatesController(UpdatesModel updatesModel, PnlUpdatesView pnlUpdatesView) {
+    public UpdatesController(UpdatesModel updatesModel, FrmUpdatesView frmUpdatesView) {
         this.updatesModel = updatesModel;
-        this.pnlUpdatesView = pnlUpdatesView;
+        this.frmUpdatesView = frmUpdatesView;
         this.updatesModel.addListener(this);
         initEventListeners();
         loadLocal();
@@ -49,7 +49,7 @@ public class UpdatesController implements PropertyChangeListener {
                 updatesModel.addRepoItem(GuiUtils.uppercaseFirst(updateItem.split("[\\/]")[0]),"Local",updateItem,false);
             }
         }
-        GuiUtils.tableSelectLast(pnlUpdatesView.pnlUpdatesTableViewer.jtblUpdates);
+        GuiUtils.tableSelectLast(frmUpdatesView.pnlUpdatesTableViewer.jtblUpdates);
     }
 
     public void loadRemote() {
@@ -57,13 +57,13 @@ public class UpdatesController implements PropertyChangeListener {
             HashMap<String, String> availableUpdates = updateManager.getApplicableUpdates(ManifestUtils.manifestPaths);
             for ( String updateItem : availableUpdates.keySet()) {
                 updatesModel.addRepoItem(updateItem.split("[\\/]")[0],"Update",updateItem,true);
-                pnlUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s",applicationConfig.getProperty("updates.url")));
+                frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s",applicationConfig.getProperty("updates.url")));
             }
-            pnlUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnInstallUpdates.setEnabled( availableUpdates.size() > 0 ? true : false );
+            frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnInstallUpdates.setEnabled( availableUpdates.size() > 0 ? true : false );
         } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidKeyException e) {
-            pnlUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s (error)",applicationConfig.getProperty("updates.url")));
+            frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s (error)",applicationConfig.getProperty("updates.url")));
         }
-        GuiUtils.tableSelectLast(pnlUpdatesView.pnlUpdatesTableViewer.jtblUpdates);
+        GuiUtils.tableSelectLast(frmUpdatesView.pnlUpdatesTableViewer.jtblUpdates);
     }
 
     public void checkUpdates() {
@@ -74,12 +74,12 @@ public class UpdatesController implements PropertyChangeListener {
 
     public void initEventListeners() {
         // Check for updates
-        pnlUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnCheckUpdates.addActionListener( actionEvent -> {
+        frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnCheckUpdates.addActionListener(actionEvent -> {
             checkUpdates();
         });
 
         // Install updates
-        pnlUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnInstallUpdates.addActionListener(new ActionListener() {
+        frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnInstallUpdates.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -98,14 +98,14 @@ public class UpdatesController implements PropertyChangeListener {
                 checkUpdates();
             }
         });
-        pnlUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        frmUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                int selectedRow = pnlUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getSelectedRow();
-                pnlUpdatesView.pnlUpdateContentViewer.jtxtContent.setText("");
+                int selectedRow = frmUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getSelectedRow();
+                frmUpdatesView.pnlUpdateContentViewer.jtxtContent.setText("");
                 if ( selectedRow >= 0 ) {
-                    String source = (String) pnlUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getValueAt(selectedRow,2);
-                    String path = (String) pnlUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getValueAt(selectedRow,3);
+                    String source = (String) frmUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getValueAt(selectedRow,2);
+                    String path = (String) frmUpdatesView.pnlUpdatesTableViewer.jtblUpdates.getValueAt(selectedRow,3);
                     String content = "";
                     if ( source.toLowerCase().equals("local")) {
                         String localPath = String.format("%s/%s", applicationConfig.getConfigDirPath(),path);
@@ -123,10 +123,10 @@ public class UpdatesController implements PropertyChangeListener {
                         try {
                             content = NetUtils.getRemoteUrl(remotePath);
                         } catch (IOException ex) {
-                            pnlUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s (error)",applicationConfig.getProperty("updates.url")));
+                            frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s (error)",applicationConfig.getProperty("updates.url")));
                         }
                     }
-                    pnlUpdatesView.pnlUpdateContentViewer.jtxtContent.setText(content);
+                    frmUpdatesView.pnlUpdateContentViewer.jtxtContent.setText(content);
                 }
             }
         });
