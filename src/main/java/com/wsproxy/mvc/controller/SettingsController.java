@@ -2,23 +2,18 @@ package com.wsproxy.mvc.controller;
 
 import com.wsproxy.configuration.ApplicationConfigException;
 import com.wsproxy.mvc.model.MainModel;
-import com.wsproxy.mvc.model.SettingsModel;
-import com.wsproxy.mvc.view.panels.settings.PnlSettingsView;
-import com.wsproxy.util.NetUtils;
+import com.wsproxy.mvc.view.frames.FrmSettingsView;
 
-import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.util.ArrayList;
 
 public class SettingsController implements PropertyChangeListener {
     private MainModel mainModel;
-    private PnlSettingsView pnlSettingsView;
+    private FrmSettingsView frmSettingsView;
 
-    public SettingsController(MainModel mainModel, PnlSettingsView pnlSettingsView) {
+    public SettingsController(MainModel mainModel, FrmSettingsView frmSettingsView) {
         this.mainModel = mainModel;
-        this.pnlSettingsView = pnlSettingsView;
+        this.frmSettingsView = frmSettingsView;
         initEventListeners();
         loadProperties();
     }
@@ -40,7 +35,7 @@ public class SettingsController implements PropertyChangeListener {
     }
 
     public void initEventListeners() {
-        pnlSettingsView.btnTest.addActionListener( actionEvent -> {
+        frmSettingsView.btnTest.addActionListener(actionEvent -> {
             validateSettings();
         });
     }
@@ -61,13 +56,13 @@ public class SettingsController implements PropertyChangeListener {
         }
         // select the first item that needs review
         if ( !valid ) {
-            for( int i = 0; i < pnlSettingsView.tblSettings.getRowCount(); i++ ) {
-                if ( (boolean)pnlSettingsView.tblSettings.getValueAt(i,0) == false ) {
-                    pnlSettingsView.tblSettings.getSelectionModel().setSelectionInterval(i,i);
+            for(int i = 0; i < frmSettingsView.tblSettings.getRowCount(); i++ ) {
+                if ( (boolean) frmSettingsView.tblSettings.getValueAt(i,0) == false ) {
+                    frmSettingsView.tblSettings.getSelectionModel().setSelectionInterval(i,i);
                     break;
                 }
             }
-            pnlSettingsView.tblSettings.invalidate();
+            frmSettingsView.tblSettings.invalidate();
         }
         return valid;
     }

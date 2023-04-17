@@ -1,24 +1,27 @@
-package com.wsproxy.mvc.view.panels.environment;
+package com.wsproxy.mvc.view.frames;
 
 import com.wsproxy.environment.Environment;
 import com.wsproxy.mvc.model.EnvironmentModel;
+import com.wsproxy.mvc.view.panels.environment.PnlEnvironmentEditor;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.EventObject;
 
-public class PnlEnvironmentView extends JPanel {
+public class FrmEnvironmentView extends JFrame {
     public PnlEnvironmentEditor pnlEnvironmentEditor;
     public JTable tblEnvironment;
     private EnvironmentModel environmentModel;
     public JSplitPane spltEnv;
     public Environment environment = new Environment();
-    public PnlEnvironmentView(EnvironmentModel environmentModel) {
+    public FrmEnvironmentView(EnvironmentModel environmentModel) {
         this.environmentModel = environmentModel;
         initLayout();
     }
 
     public void initLayout() {
+        setTitle("Environment");
+        setSize(800,600);
         pnlEnvironmentEditor = new PnlEnvironmentEditor(environmentModel);
         pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnSave.setEnabled(true);
         pnlEnvironmentEditor.pnlEnvironmentItemEditor.jbtnDelete.setEnabled(true);

@@ -1,6 +1,9 @@
 package com.wsproxy.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wsproxy.environment.Environment;
 import com.wsproxy.httpproxy.websocket.WebsocketFrame;
 import com.wsproxy.httpproxy.websocket.WebsocketFrameType;
@@ -16,6 +19,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class TestUtil {
     public static final String DEFAULT_TEST_WS_MESSAGE = "The quick brown fox jumps over the lazy dog.";
@@ -90,55 +95,117 @@ public final class TestUtil {
         return appliedPayload;
     }
 
-    // TODO
     public static String decodePayload (PayloadEncoding payloadEncoding, byte[] payload ) {
         String decodedPayload = null;
         if ( payload != null ) {
-            if ( payloadEncoding.equals(PayloadEncoding.BASE64)) {
-                try {
+            try {
+                if ( payloadEncoding.equals(PayloadEncoding.BASE64)) {
                     decodedPayload = new String(Base64.getDecoder().decode(payload));
                 }
-                catch ( IllegalArgumentException e ) {
-                    ;
-                }
-            }
-            if ( payloadEncoding.equals(PayloadEncoding.URL)) {
-                try {
+                if ( payloadEncoding.equals(PayloadEncoding.URL)) {
                     decodedPayload = URLDecoder.decode(new String(payload),"UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    ;
                 }
-            }
-            if ( payloadEncoding.equals(PayloadEncoding.URLFULL)) {
-                try {
+                if ( payloadEncoding.equals(PayloadEncoding.URLFULL)) {
                     decodedPayload = URLDecoder.decode(new String(payload),"UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    ;
+                }
+                if ( payloadEncoding.equals(PayloadEncoding.HEX)) {
+
+                }
+                if ( payloadEncoding.equals(PayloadEncoding.XML)) {
+
+                }
+                if ( payloadEncoding.equals(PayloadEncoding.JAVASCRIPT)) {
+                    // TODO - decode using jackson?
+                    decodedPayload = new String(payload).replaceAll("\\\\\"","\"");
+
+                }
+                if ( payloadEncoding.equals(PayloadEncoding.HESCAPE)) {
+                    String str = new String(payload).replaceAll("\\\\x","");
+                    byte buff[] = GuiUtils.parseHexString(str);
+                    decodedPayload = new String(buff);
+                }
+
+                if ( payloadEncoding.equals(PayloadEncoding.UESCAPE)) {
+                    decodedPayload = unicodeUnEscapeStr(new String(payload));
+                }
+                if ( payloadEncoding.equals(PayloadEncoding.RAW)) {
+
                 }
             }
-            if ( payloadEncoding.equals(PayloadEncoding.HEX)) {
-
-            }
-            if ( payloadEncoding.equals(PayloadEncoding.XML)) {
-
-            }
-            if ( payloadEncoding.equals(PayloadEncoding.JAVASCRIPT)) {
-
-            }
-            if ( payloadEncoding.equals(PayloadEncoding.HESCAPE)) {
-
-            }
-
-            if ( payloadEncoding.equals(PayloadEncoding.UESCAPE)) {
-
-            }
-            if ( payloadEncoding.equals(PayloadEncoding.RAW)) {
-
+            catch ( Exception e ) {
+                ;
             }
         }
         return decodedPayload;
     }
 
+    public static String unicodeUnEscapeStr( String encodedStr ) {
+        StringBuilder sb = new StringBuilder();
+        Pattern p = Pattern.compile("([a-f0-9]+)", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(encodedStr);
+        while ( m.find() ) {
+            int len = m.group(1).length()/2;
+            if ( m.group(1).startsWith("00")) {
+                len--;
+            }
+            byte buff[] = new byte[len];
+            for ( int i = 0, j = 0; i < m.group(1).length(); i+=2 ) {
+                String curHex = m.group(1).substring(i,i+2);
+                if ( curHex.equals("00")) {
+                    continue;
+                }
+                buff[j] = (byte) Integer.parseInt(curHex, 16);
+                j++;
+            }
+            sb.append(new String(buff));
+        }
+        return sb.toString();
+    }
+
+    public static int getCharLen( byte b ) {
+        int len = 0;
+        if ( (b & 0x80) == 0x00 ) {
+            len = 1;
+        }
+        else if ( ( b & 0xE0) == 0xC0 ) {
+            len = 2;
+        }
+        else if ( ( b & 0xF0) == 0xE0 ) {
+            len = 3;
+        }
+        else if ( ( b & 0xF0) == 0xE0 ) {
+            len = 4;
+        }
+        else {
+            len = 0;
+        }
+        return len;
+    }
+
+    public static String unicodeEscapeStr( String str ) {
+        StringBuilder sb = new StringBuilder();
+        byte buff[] = str.getBytes();
+        for ( int i = 0; i < buff.length; i++ ) {
+            int len = getCharLen(buff[i]);
+            if ( len == 1 ) {
+                sb.append(String.format("\\u00%02x", buff[i]));
+            }
+            else if ( len == 2 ) {
+                sb.append(String.format("\\u%02x%02x", buff[i],buff[i+1]));
+                i+= 1;
+            }
+            else if ( len == 3 ) {
+                sb.append(String.format("\\u%02x%02xu%02x", buff[i],buff[i+1],buff[i+2]));
+                i+= 2;
+            }
+
+            else if ( len == 4 ) {
+                sb.append(String.format("\\u%02x%02xu%02x", buff[i],buff[i+1],buff[i+2],buff[i+3]));
+                i+= 3;
+            }
+        }
+        return sb.toString();
+    }
 
     // TODO
     public static String encodePayload (PayloadEncoding payloadEncoding, byte[] payload ) {
@@ -181,8 +248,7 @@ public final class TestUtil {
             }
 
             if ( payloadEncoding.equals(PayloadEncoding.UESCAPE)) {
-                // TODO FIX TO ACTUALLY SUPPORT MULTIBYTE
-                return GuiUtils.binToHexStr(payload.getBytes(StandardCharsets.UTF_8),"\\u00");
+                return unicodeEscapeStr(payload);
             }
             if ( payloadEncoding.equals(PayloadEncoding.RAW)) {
                 return payload;

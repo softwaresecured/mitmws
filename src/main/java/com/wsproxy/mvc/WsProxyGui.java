@@ -23,6 +23,17 @@ public class WsProxyGui {
         mainController = new MainController(mainModel,frmMain);
         initEventListeners();
         ThemeUtils.setLookAndFeel(frmMain);
+        ThemeUtils.setLookAndFeel(frmMain.frmPayloadsView);
+        ThemeUtils.setLookAndFeel(frmMain.frmEncoderDecoderToolView);
+        ThemeUtils.setLookAndFeel(frmMain.frmRulesView);
+        ThemeUtils.setLookAndFeel(frmMain.frmUpdatesView);
+        ThemeUtils.setLookAndFeel(frmMain.frmSettingsView);
+        ThemeUtils.setLookAndFeel(frmMain.frmLogsView);
+        ThemeUtils.setLookAndFeel(frmMain.frmScriptConsole);
+        ThemeUtils.setLookAndFeel(frmMain.frmEnvironmentView);
+        ThemeUtils.setLookAndFeel(frmMain.frmHttpRequestTester);
+        ThemeUtils.setLookAndFeel(frmMain.frmProjectDataExplorer);
+
     }
 
     private void initEventListeners() {

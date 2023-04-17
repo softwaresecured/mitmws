@@ -1,15 +1,10 @@
 package com.wsproxy.mvc.controller;
 
 import com.wsproxy.anomalydetection.DetectedAnomaly;
-import com.wsproxy.anomalydetection.DetectionType;
 import com.wsproxy.jsonobjects.TldDataModel;
-import com.wsproxy.mvc.model.AnomaliesModel;
 import com.wsproxy.mvc.model.InteractshModel;
-import com.wsproxy.mvc.model.LogModel;
 import com.wsproxy.mvc.model.MainModel;
 import com.wsproxy.mvc.view.panels.interactsh.PnlInteractsh;
-import com.wsproxy.mvc.view.panels.logs.PnlLogs;
-import com.wsproxy.util.GuiUtils;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;

@@ -9,6 +9,7 @@ import java.awt.*;
 
 public class PnlHttpRequestResponse extends JPanel {
 
+    public JLabel lblTestName = new JLabel("Test name");
     public JLabel lblConnectionStatus = new JLabel("[Not connected]");
     public JTextField jtxtWsUrl = null;
     public JTextField jtxtTestRunName = null;
@@ -19,11 +20,13 @@ public class PnlHttpRequestResponse extends JPanel {
     private JPanel pnlHttpUpgradeMessageResponse = null;
     private JPanel pnlHttpUpgradeMessageRequest = null;
     public JButton jbtnRunTest = null;
+    public JButton jbtnReloadScripts = new JButton("Reload");
     private JPanel pnlTarget = null;
     public JCheckBox jchkMessageBody = null;
     public PnlUpgradeRequestScriptConfig pnlUpgradeRequestScriptConfig;
     public JScrollPane scrollHttpMsgBodyViewer = null;
     private HttpRequestResponseModel httpRequestResponseModel;
+    private JTabbedPane upgradeHttpMsgTabs;
     public PnlHttpRequestResponse( HttpRequestResponseModel httpRequestResponseModel ) {
         this.httpRequestResponseModel = httpRequestResponseModel;
         initLayout();
@@ -137,7 +140,7 @@ public class PnlHttpRequestResponse extends JPanel {
         gbc.gridy = 0;
         gbc.weightx = 0;
         gbc.weighty = 0;
-        pnlTarget.add(new JLabel("Test name"),gbc);
+        pnlTarget.add(lblTestName,gbc);
         gbc = new GridBagConstraints();
         gbc.gridx = 3;
         gbc.gridy = 0;
@@ -150,20 +153,28 @@ public class PnlHttpRequestResponse extends JPanel {
         gbc.weightx = 0;
         gbc.weighty = 0;
         pnlTarget.add(lblConnectionStatus,gbc);
+
         gbc = new GridBagConstraints();
         gbc.gridx = 5;
         gbc.gridy = 0;
         gbc.weightx = 0;
         gbc.weighty = 0;
+        pnlTarget.add(jbtnReloadScripts,gbc);
+
+
+        gbc = new GridBagConstraints();
+        gbc.gridx = 6;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        gbc.weighty = 0;
         pnlTarget.add(jbtnRunTest,gbc);
 
-        JTabbedPane upgradeHttpMsgTabs = new JTabbedPane();
+        upgradeHttpMsgTabs = new JTabbedPane();
         upgradeHttpMsgTabs.addTab("Request", null, pnlHttpUpgradeMessageRequest);
         upgradeHttpMsgTabs.addTab("Response", null, pnlHttpUpgradeMessageResponse);
 
 
         setLayout(new GridBagLayout());
-        //setBorder(BorderFactory.createTitledBorder("Upgrade request"));
 
         gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -180,5 +191,15 @@ public class PnlHttpRequestResponse extends JPanel {
         gbc.weightx = 1;
         gbc.weighty = 1;
         add(upgradeHttpMsgTabs,gbc);
+    }
+
+    public JTabbedPane getUpgradeHttpMsgTabs() {
+        return upgradeHttpMsgTabs;
+    }
+
+    // Is it used in a test ( true ) or standalone ( false )
+    public void setTestMode ( boolean standAlone ) {
+        lblTestName.setVisible(false);
+        jtxtTestRunName.setVisible(false);
     }
 }

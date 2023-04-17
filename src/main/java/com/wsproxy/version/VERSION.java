@@ -18,11 +18,13 @@ package com.wsproxy.version;
     0.1.15  - update client improvements
     0.1.16  - Event scripts, api, http server improvements
     0.1.17  - Breakpoints
+    0.1.18  - Headless, encode / decode
+    0.1.19  - Moved non-test related tabs to windows
  */
 public final class VERSION {
     public static final int VERSION_MAJOR = 0;
     public static final int VERSION_MINOR = 1;
-    public static final int VERSION_PATCH = 17;
+    public static final int VERSION_PATCH = 19;
 
     public static String getVersionStr() {
         return String.format("%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);

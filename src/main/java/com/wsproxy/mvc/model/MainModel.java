@@ -35,6 +35,8 @@ public class MainModel {
     private ScriptConsoleModel scriptConsoleModel;
     private BreakpointModel breakpointModel;
     private EncoderDecoderToolModel encoderDecoderToolModel;
+    private HttpRequestTesterModel httpRequestTesterModel;
+    private ProjectDataExplorerModel projectDataExplorerModel;
 
     // Threads
     private MaintenanceThread maintenanceThread;
@@ -70,8 +72,19 @@ public class MainModel {
         scriptConsoleModel = new ScriptConsoleModel();
         breakpointModel = new BreakpointModel();
         encoderDecoderToolModel = new EncoderDecoderToolModel();
+        httpRequestTesterModel = new HttpRequestTesterModel();
+        projectDataExplorerModel = new ProjectDataExplorerModel();
+
 
         proxy = new HttpProxy(breakpointModel);
+    }
+
+    public ProjectDataExplorerModel getProjectDataExplorerModel() {
+        return projectDataExplorerModel;
+    }
+
+    public HttpRequestTesterModel getHttpRequestTesterModel() {
+        return httpRequestTesterModel;
     }
 
     public EncoderDecoderToolModel getEncoderDecoderToolModel() {

@@ -1,24 +1,27 @@
-package com.wsproxy.mvc.view.panels.payloads;
-import com.wsproxy.mvc.model.AutomatedTesterModel;
+package com.wsproxy.mvc.view.frames;
 import com.wsproxy.mvc.model.PayloadsModel;
+import com.wsproxy.mvc.view.panels.payloads.PnlAutomatedTesterPayloadsToolbar;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.EventObject;
 
-public class PnlPayloadsView extends JPanel {
+public class FrmPayloadsView extends JFrame {
     public PnlAutomatedTesterPayloadsToolbar pnlAutomatedTesterPayloadsToolbar = new PnlAutomatedTesterPayloadsToolbar();
     public JSplitPane spltAutomatedTester = null;
     public JTable jtblPayloadLists = null;
     public JTextArea jtxtLayloadList = new JTextArea();
     public PayloadsModel payloadsModel;
-    public PnlPayloadsView(PayloadsModel payloadsModel) {
+    public FrmPayloadsView(PayloadsModel payloadsModel) {
         this.payloadsModel = payloadsModel;
         initLayout();
 
     }
 
     public void initLayout() {
+
+        setTitle("Payloads");
+        setSize(800,600);
 
         JScrollPane scrollPayloadList = new JScrollPane(jtxtLayloadList);
         scrollPayloadList.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

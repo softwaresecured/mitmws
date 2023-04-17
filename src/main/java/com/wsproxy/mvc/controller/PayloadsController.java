@@ -1,30 +1,27 @@
 package com.wsproxy.mvc.controller;
 
 import com.wsproxy.mvc.model.PayloadsModel;
-import com.wsproxy.mvc.view.panels.payloads.PnlPayloadsView;
+import com.wsproxy.mvc.view.frames.FrmPayloadsView;
 import com.wsproxy.tester.PayloadList;
 import com.wsproxy.util.GuiUtils;
 
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 
 public class PayloadsController implements PropertyChangeListener {
 
     private PayloadsModel payloadsModel;
-    private PnlPayloadsView pnlPayloadsView;
+    private FrmPayloadsView frmPayloadsView;
 
-    public PayloadsController(PayloadsModel payloadsModel, PnlPayloadsView pnlPayloadsView) {
+    public PayloadsController(PayloadsModel payloadsModel, FrmPayloadsView frmPayloadsView) {
         this.payloadsModel = payloadsModel;
-        this.pnlPayloadsView = pnlPayloadsView;
+        this.frmPayloadsView = frmPayloadsView;
         this.payloadsModel.addListener(this);
         initEventListeners();
         payloadsModel.reloadPayloads(true);
-        GuiUtils.tableSelectFirst(pnlPayloadsView.jtblPayloadLists);
+        GuiUtils.tableSelectFirst(frmPayloadsView.jtblPayloadLists);
     }
 
     public void initEventListeners() {
@@ -49,31 +46,31 @@ public class PayloadsController implements PropertyChangeListener {
             }
         });
 
-        pnlPayloadsView.pnlAutomatedTesterPayloadsToolbar.jbtnReload.addActionListener(actionEvent -> {
+        frmPayloadsView.pnlAutomatedTesterPayloadsToolbar.jbtnReload.addActionListener(actionEvent -> {
             payloadsModel.reloadPayloads();
         });
 
-        pnlPayloadsView.pnlAutomatedTesterPayloadsToolbar.jbtnSave.addActionListener(actionEvent -> {
-            int rowId = pnlPayloadsView.jtblPayloadLists.getSelectedRow();
+        frmPayloadsView.pnlAutomatedTesterPayloadsToolbar.jbtnSave.addActionListener(actionEvent -> {
+            int rowId = frmPayloadsView.jtblPayloadLists.getSelectedRow();
             if ( rowId >= 0 ) {
-                String listName = (String) pnlPayloadsView.jtblPayloadLists.getValueAt(rowId, 1);
+                String listName = (String) frmPayloadsView.jtblPayloadLists.getValueAt(rowId, 1);
                 if (listName != null) {
                     if ( listName.equals("Custom")) {
-                        payloadsModel.updateCustomPayloadList(pnlPayloadsView.jtxtLayloadList.getText());
-                        GuiUtils.tableSelectFirst(pnlPayloadsView.jtblPayloadLists);
+                        payloadsModel.updateCustomPayloadList(frmPayloadsView.jtxtLayloadList.getText());
+                        GuiUtils.tableSelectFirst(frmPayloadsView.jtblPayloadLists);
                     }
                 }
             }
         });
 
-        pnlPayloadsView.jtblPayloadLists.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int rowId = pnlPayloadsView.jtblPayloadLists.getSelectedRow();
+        frmPayloadsView.jtblPayloadLists.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+            int rowId = frmPayloadsView.jtblPayloadLists.getSelectedRow();
             if ( rowId >= 0 ) {
-                String listName = (String) pnlPayloadsView.jtblPayloadLists.getValueAt(rowId,1);
+                String listName = (String) frmPayloadsView.jtblPayloadLists.getValueAt(rowId,1);
                 if ( listName != null ) {
                     // update the buttons
-                    pnlPayloadsView.pnlAutomatedTesterPayloadsToolbar.jbtnSave.setEnabled(listName.equals("Custom"));
-                    pnlPayloadsView.jtxtLayloadList.setEditable(listName.equals("Custom"));
+                    frmPayloadsView.pnlAutomatedTesterPayloadsToolbar.jbtnSave.setEnabled(listName.equals("Custom"));
+                    frmPayloadsView.jtxtLayloadList.setEditable(listName.equals("Custom"));
                     // update the list
                     for ( PayloadList payloadList : payloadsModel.getPayloadLibrary() ) {
                         if ( payloadList.getPayloadListName().equals(listName)) {
@@ -81,7 +78,7 @@ public class PayloadsController implements PropertyChangeListener {
                             for ( String payload : payloadList.getPayloads()) {
                                 sb.append(String.format("%s\n", payload));
                             }
-                            pnlPayloadsView.jtxtLayloadList.setText(sb.toString());
+                            frmPayloadsView.jtxtLayloadList.setText(sb.toString());
                             break;
                         }
                     }
@@ -93,7 +90,7 @@ public class PayloadsController implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
         if ( "PayloadsModel.enabledPayloadCount".equals(propertyChangeEvent.getPropertyName())) {
-            pnlPayloadsView.pnlAutomatedTesterPayloadsToolbar.jlblEnabledPayloadCount.setText(String.format("%d payloads enabled", (Integer)propertyChangeEvent.getNewValue()));
+            frmPayloadsView.pnlAutomatedTesterPayloadsToolbar.jlblEnabledPayloadCount.setText(String.format("%d payloads enabled", (Integer)propertyChangeEvent.getNewValue()));
         }
     }
 }

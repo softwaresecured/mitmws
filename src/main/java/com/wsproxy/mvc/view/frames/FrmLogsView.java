@@ -1,19 +1,22 @@
-package com.wsproxy.mvc.view.panels.logs;
+package com.wsproxy.mvc.view.frames;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class PnlLogs extends JPanel {
+public class FrmLogsView extends JFrame {
     public JTextArea jtxtLogs = null;
     public JScrollPane scrollLogs = null;
-    public PnlLogs() {
+    public FrmLogsView() {
         initLayout();
     }
     public void initLayout() {
+        setTitle("Logs");
+        setSize(800,600);
         jtxtLogs = new JTextArea();
+        jtxtLogs.setLineWrap(true);
         jtxtLogs.setEditable(false);
         scrollLogs = new JScrollPane(jtxtLogs);
-        scrollLogs.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollLogs.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollLogs.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();

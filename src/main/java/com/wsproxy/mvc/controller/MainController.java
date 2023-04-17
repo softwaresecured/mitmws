@@ -5,7 +5,6 @@ import com.wsproxy.httpproxy.websocket.WebsocketFrame;
 import com.wsproxy.httpproxy.trafficlogger.HttpTrafficRecord;
 import com.wsproxy.httpproxy.trafficlogger.WebsocketDirection;
 import com.wsproxy.httpproxy.trafficlogger.WebsocketTrafficRecord;
-import com.wsproxy.mvc.view.frames.FrmEncoderDecoderToolView;
 import com.wsproxy.projects.ProjectDataServiceException;
 import com.wsproxy.util.FileUtils;
 import com.wsproxy.util.GuiUtils;
@@ -54,6 +53,8 @@ public class MainController implements PropertyChangeListener {
     private InteractshController interactshController;
     private BreakpointController breakpointController;
     private EncoderDecoderToolController encoderDecoderToolController;
+    private HttpRequestController httpRequestController;
+    private ProjectDataExplorerController projectDataExplorerController;
 
     // Threads
     private LogTailerThread logTailerThread;
@@ -67,34 +68,38 @@ public class MainController implements PropertyChangeListener {
         this.mainModel = model;
         this.frmMainView = view;
 
-        // Controllers
-        updatesController = new UpdatesController(mainModel.getUpdatesModel(),frmMainView.pnlUpdatesView);
-        mainStatusBarController = new MainStatusBarController(mainModel.getMainStatusBarModel(),frmMainView.pnlMainStatusBarView);
-        trafficController = new TrafficController(mainModel.getTrafficModel(),mainModel.getProjectModel(),frmMainView.pnlTrafficView);
-        trafficSearchController = new TrafficSearchController(mainModel,frmMainView.pnlTrafficSearchView);
-        environmentController = new EnvironmentController(mainModel,frmMainView.pnlEnvironmentView);
-        manualTesterController = new ManualTesterController(mainModel,mainModel.getProxy().getLogger(),frmMainView.pnlManualTesterView);
-        automatedTesterController = new AutomatedTesterController(model,mainModel.getProxy().getLogger(),frmMainView.pnlAutomatedTesterView);
-        anomaliesController = new AnomaliesController(mainModel.getAnomaliesModel(),mainModel.getProjectModel(),frmMainView.pnlAnomaliesView);
-        logsController = new LogsController(mainModel.getAppLogModel(),frmMainView.pnlLogs);
-        settingsController = new SettingsController(mainModel,frmMainView.pnlSettingsView);
-        immediateController = new ImmediateController(mainModel,model.getImmediateModel(),mainModel.getProjectModel(),mainModel.getProxy().getLogger(),frmMainView.pnlImmediateView);
-        payloadsController = new PayloadsController(mainModel.getPayloadsModel(),frmMainView.pnlPayloadsView);
-        rulesController = new RulesController(mainModel.getRulesModel(),frmMainView.pnlRulesView);
-        protocolTesterController = new ProtocolTesterController(mainModel,frmMainView.pnlProtocolTesterView);
-        scriptConsoleController = new ScriptConsoleController(mainModel.getScriptConsoleModel(),frmMainView.pnlScriptConsole);
-        interactshController = new InteractshController(mainModel.getInteractshModel(),mainModel,frmMainView.pnlInteractsh);
-        encoderDecoderToolController = new EncoderDecoderToolController(mainModel.getEncoderDecoderToolModel(),frmMainView.frmEncoderDecoderToolView);
-        attachListeners();
-        initEventListeners();
-
         // Create the project
         try {
             mainModel.getProjectModel().createDefaultProject();
             updateMainTitle();
         } catch (ProjectDataServiceException e) {
-            e.printStackTrace(); // TODO
+            e.printStackTrace(); // TODO big error
         }
+
+        // Controllers
+        updatesController = new UpdatesController(mainModel.getUpdatesModel(),frmMainView.frmUpdatesView);
+        mainStatusBarController = new MainStatusBarController(mainModel.getMainStatusBarModel(),frmMainView.pnlMainStatusBarView);
+        trafficController = new TrafficController(mainModel.getTrafficModel(),mainModel.getProjectModel(),frmMainView.pnlTrafficView);
+        trafficSearchController = new TrafficSearchController(mainModel,frmMainView.pnlTrafficSearchView);
+        environmentController = new EnvironmentController(mainModel,frmMainView.frmEnvironmentView);
+        manualTesterController = new ManualTesterController(mainModel,mainModel.getProxy().getLogger(),frmMainView.pnlManualTesterView);
+        automatedTesterController = new AutomatedTesterController(model,mainModel.getProxy().getLogger(),frmMainView.pnlAutomatedTesterView);
+        anomaliesController = new AnomaliesController(mainModel.getAnomaliesModel(),mainModel.getProjectModel(),frmMainView.pnlAnomaliesView);
+        logsController = new LogsController(mainModel.getAppLogModel(),frmMainView.frmLogsView);
+        settingsController = new SettingsController(mainModel,frmMainView.frmSettingsView);
+        immediateController = new ImmediateController(mainModel,model.getImmediateModel(),mainModel.getProjectModel(),mainModel.getProxy().getLogger(),frmMainView.pnlImmediateView);
+        payloadsController = new PayloadsController(mainModel.getPayloadsModel(),frmMainView.frmPayloadsView);
+        rulesController = new RulesController(mainModel.getRulesModel(),frmMainView.frmRulesView);
+        protocolTesterController = new ProtocolTesterController(mainModel,frmMainView.pnlProtocolTesterView);
+        scriptConsoleController = new ScriptConsoleController(mainModel.getScriptConsoleModel(),frmMainView.frmScriptConsole);
+        interactshController = new InteractshController(mainModel.getInteractshModel(),mainModel,frmMainView.pnlInteractsh);
+        encoderDecoderToolController = new EncoderDecoderToolController(mainModel.getEncoderDecoderToolModel(),frmMainView.frmEncoderDecoderToolView);
+        httpRequestController = new HttpRequestController(mainModel.getHttpRequestTesterModel(),frmMainView.frmHttpRequestTester);
+        projectDataExplorerController = new ProjectDataExplorerController(mainModel,frmMainView.frmProjectDataExplorer);
+        attachListeners();
+        initEventListeners();
+
+
 
         // Start threads
         startLogTailerThread();
@@ -156,6 +161,7 @@ public class MainController implements PropertyChangeListener {
                     e.printStackTrace();
                 }
             }
+            exportRec = sb.toString();
         }
         return exportRec;
     }
@@ -195,6 +201,7 @@ public class MainController implements PropertyChangeListener {
                 jfcChooser.setSelectedFile(new File("frames.raw"));
                 if ( jfcChooser.showSaveDialog(frmMainView) == JFileChooser.APPROVE_OPTION ) {
                     if ( jfcChooser.getSelectedFile() != null ) {
+                        System.out.println(String.format("Exporting %d frames", messageIds.length));
                         String export = exportSelectedFramesByMessageId(messageIds);
                         if ( export != null ) {
                             try {
@@ -202,6 +209,9 @@ public class MainController implements PropertyChangeListener {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                        }
+                        else {
+                            System.out.println("ERROR EXPORT IS NULL");
                         }
                     }
                 }
@@ -506,9 +516,7 @@ public class MainController implements PropertyChangeListener {
             }
         });
 
-        frmMainView.mnuUpdate.addActionListener(actionEvent -> {
 
-        });
 
         frmMainView.mnuItemImportHttpFromFile.addActionListener( actionEvent -> {
 
@@ -584,7 +592,7 @@ public class MainController implements PropertyChangeListener {
                 }
             }
         });
-        frmMainView.pnlSettingsView.btnApply.addActionListener( actionEvent -> {
+        frmMainView.frmSettingsView.btnApply.addActionListener(actionEvent -> {
             if (settingsController.validateSettings() ) {
                 stopProxyServices();
                 for ( int i = 0; i < mainModel.getSettingsModel().getSettingsTableModel().getRowCount(); i++ ) {
@@ -605,7 +613,7 @@ public class MainController implements PropertyChangeListener {
 
             }
         });
-        frmMainView.pnlSettingsView.btnDefaults.addActionListener( actionEvent -> {
+        frmMainView.frmSettingsView.btnDefaults.addActionListener(actionEvent -> {
             stopProxyServices();
             try {
                 mainModel.getSettingsModel().getApplicationConfig().loadDefaultConfig();
@@ -633,7 +641,48 @@ public class MainController implements PropertyChangeListener {
             frmMainView.frmEncoderDecoderToolView.setVisible(true);
         });
 
+        // Payloads
+        frmMainView.mnuPayloads.addActionListener( actionEvent -> {
+            frmMainView.frmPayloadsView.setVisible(true);
+        });
 
+        // Rules
+        frmMainView.mnuRules.addActionListener( actionEvent -> {
+            frmMainView.frmRulesView.setVisible(true);
+        });
+
+        // Updates
+        frmMainView.mnuUpdate.addActionListener(actionEvent -> {
+            frmMainView.frmUpdatesView.setVisible(true);
+        });
+
+        // Settings
+        frmMainView.mnuSettings.addActionListener(actionEvent -> {
+            frmMainView.frmSettingsView.setVisible(true);
+        });
+
+        // Logs
+        frmMainView.mnuLogs.addActionListener(actionEvent -> {
+            frmMainView.frmLogsView.setVisible(true);
+        });
+
+        // Logs
+        frmMainView.mnuScriptConsole.addActionListener(actionEvent -> {
+            frmMainView.frmScriptConsole.setVisible(true);
+        });
+
+        // Environment
+        frmMainView.mnuEnvironment.addActionListener(actionEvent -> {
+            frmMainView.frmEnvironmentView.setVisible(true);
+        });
+
+        frmMainView.mnuHttpRequestTester.addActionListener( actionEvent -> {
+            frmMainView.frmHttpRequestTester.setVisible(true);
+        });
+
+        frmMainView.mnuProjectDataExplorer.addActionListener( actionEvent -> {
+            frmMainView.frmProjectDataExplorer.setVisible(true);
+        });
     }
 
     public void loadTraffic() throws IOException {

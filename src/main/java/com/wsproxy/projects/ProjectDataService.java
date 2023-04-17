@@ -2043,6 +2043,31 @@ public class ProjectDataService {
         }
         return testNames;
     }
+
+    public String[] getTableNames() {
+        String names[] = null;
+        ResultSet tables = null;
+        try {
+            tables = connection.getMetaData().getTables(null, null, "%", new String[]{"TABLE"});
+            ArrayList<String> results = new ArrayList<String>();
+            while (tables.next()) {
+                results.add(tables.getString("TABLE_NAME"));
+            }
+            names = results.stream().toArray(String[]::new);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return names;
+    }
+
+    public ResultSet runRawQuery( String sql ) throws SQLException {
+        ResultSet rs = null;
+        Statement stmt = connection.createStatement();
+        rs = stmt.executeQuery(sql);
+        return rs;
+    }
+
     public String getDbFilePath() {
         return dbFilePath;
     }

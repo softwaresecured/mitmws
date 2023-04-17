@@ -4,20 +4,13 @@ import com.wsproxy.mvc.model.MainModel;
 import com.wsproxy.mvc.view.panels.breakpoints.PnlBreakPointsView;
 import com.wsproxy.mvc.view.panels.immediate.PnlImmediateView;
 import com.wsproxy.mvc.view.panels.interactsh.PnlInteractsh;
-import com.wsproxy.mvc.view.panels.payloads.PnlPayloadsView;
 import com.wsproxy.mvc.view.panels.protocoltester.PnlProtocolTesterView;
-import com.wsproxy.mvc.view.panels.rules.PnlRulesView;
-import com.wsproxy.mvc.view.panels.scriptconsole.PnlScriptConsole;
 import com.wsproxy.mvc.view.panels.search.PnlTrafficSearchView;
 import com.wsproxy.mvc.view.panels.anomalies.PnlAnomaliesView;
 import com.wsproxy.mvc.view.panels.automatedtester.PnlAutomatedTesterView;
-import com.wsproxy.mvc.view.panels.environment.PnlEnvironmentView;
-import com.wsproxy.mvc.view.panels.logs.PnlLogs;
 import com.wsproxy.mvc.view.panels.mainform.PnlMainStatusBarView;
 import com.wsproxy.mvc.view.panels.manualtester.PnlManualTesterView;
-import com.wsproxy.mvc.view.panels.settings.PnlSettingsView;
 import com.wsproxy.mvc.view.panels.trafficpanel.PnlTrafficView;
-import com.wsproxy.mvc.view.panels.updates.PnlUpdatesView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +23,6 @@ public class FrmMainView extends JFrame {
     */
     public JMenuBar mnuBarMainMenu = new JMenuBar();
     public JMenu mnuFile = null;
-    public JMenu mnuEdit = null;
     public JMenu mnuProxy = null;
     public JMenu mnuTestplan = null;
     public JMenu mnuTools = null;
@@ -50,9 +42,16 @@ public class FrmMainView extends JFrame {
     public JMenuItem mnuProxyStop = new JMenuItem("Stop");
     public JMenuItem mnuExportCa = new JMenuItem("Export CA Certificate");
     public JMenuItem mnuUpdate = new JMenuItem("Update rules/payloads");
+    public JMenuItem mnuSettings = new JMenuItem("Settings");
+    public JMenuItem mnuLogs = new JMenuItem("Logs");
+    public JMenuItem mnuScriptConsole = new JMenuItem("Script console");
+    public JMenuItem mnuEnvironment = new JMenuItem("Environment");
 
     public JMenuItem mnuEncodeDecode = new JMenuItem("Encoder/Decoder");
-
+    public JMenuItem mnuPayloads = new JMenuItem("Payloads");
+    public JMenuItem mnuRules = new JMenuItem("Rules");
+    public JMenuItem mnuHttpRequestTester = new JMenuItem("HTTP request tester");
+    public JMenuItem mnuProjectDataExplorer = new JMenuItem("Project data query");
 
     // Popup menu for traffic tables
     public JPopupMenu httpTrafficTableMenu;
@@ -78,22 +77,24 @@ public class FrmMainView extends JFrame {
     public PnlMainStatusBarView pnlMainStatusBarView;
     public PnlTrafficView pnlTrafficView;
     public PnlTrafficSearchView pnlTrafficSearchView;
-    public PnlEnvironmentView pnlEnvironmentView;
+    public FrmEnvironmentView frmEnvironmentView;
     public PnlManualTesterView pnlManualTesterView;
     public PnlAutomatedTesterView pnlAutomatedTesterView;
     public PnlAnomaliesView pnlAnomaliesView;
-    public PnlSettingsView pnlSettingsView;
+    public FrmSettingsView frmSettingsView;
     public PnlImmediateView pnlImmediateView;
-    public PnlUpdatesView pnlUpdatesView;
-    public PnlPayloadsView pnlPayloadsView;
-    public PnlRulesView pnlRulesView;
-    public PnlScriptConsole pnlScriptConsole;
+    public FrmUpdatesView frmUpdatesView;
+    public FrmPayloadsView frmPayloadsView;
+    public FrmRulesView frmRulesView;
+    public FrmScriptConsole frmScriptConsole;
     public PnlInteractsh pnlInteractsh;
     public PnlBreakPointsView pnlBreakPointsView;
     public FrmEncoderDecoderToolView frmEncoderDecoderToolView;
+    public FrmHttpRequestTester frmHttpRequestTester;
+    public FrmProjectDataExplorer frmProjectDataExplorer;
 
 
-    public PnlLogs pnlLogs;
+    public FrmLogsView frmLogsView;
     public PnlProtocolTesterView pnlProtocolTesterView;
     private MainModel mainModel;
     private ApplicationConfig applicationConfig = new ApplicationConfig();
@@ -107,20 +108,22 @@ public class FrmMainView extends JFrame {
     public void initSubLayout() {
         pnlTrafficView = new PnlTrafficView(mainModel);
         pnlTrafficSearchView = new PnlTrafficSearchView(mainModel.getTrafficSearchModel());
-        pnlEnvironmentView = new PnlEnvironmentView(mainModel.getEnvironmentModel());
+        frmEnvironmentView = new FrmEnvironmentView(mainModel.getEnvironmentModel());
         pnlManualTesterView = new PnlManualTesterView(mainModel.getManualTesterModel());
         pnlAutomatedTesterView = new PnlAutomatedTesterView(mainModel.getAutomatedTesterModel());
         pnlAnomaliesView = new PnlAnomaliesView(mainModel.getAnomaliesModel(),mainModel.getProjectModel());
-        pnlSettingsView = new PnlSettingsView(mainModel.getSettingsModel());
+        frmSettingsView = new FrmSettingsView(mainModel.getSettingsModel());
         pnlImmediateView = new PnlImmediateView(mainModel.getImmediateModel());
-        pnlUpdatesView = new PnlUpdatesView(mainModel.getUpdatesModel());
-        pnlPayloadsView = new PnlPayloadsView(mainModel.getPayloadsModel());
-        pnlRulesView = new PnlRulesView(mainModel.getRulesModel());
-        pnlLogs = new PnlLogs();
+        frmUpdatesView = new FrmUpdatesView(mainModel.getUpdatesModel());
+        frmPayloadsView = new FrmPayloadsView(mainModel.getPayloadsModel());
+        frmRulesView = new FrmRulesView(mainModel.getRulesModel());
+        frmLogsView = new FrmLogsView();
         pnlInteractsh = new PnlInteractsh(mainModel.getInteractshModel());
-        pnlScriptConsole = new PnlScriptConsole();
+        frmScriptConsole = new FrmScriptConsole();
         pnlProtocolTesterView = new PnlProtocolTesterView(mainModel.getProtocolTesterModel());
         frmEncoderDecoderToolView = new FrmEncoderDecoderToolView(mainModel.getEncoderDecoderToolModel());
+        frmHttpRequestTester = new FrmHttpRequestTester();
+        frmProjectDataExplorer = new FrmProjectDataExplorer(mainModel.getProjectDataExplorerModel());
 
         jtabMain.addTab("Traffic", null, pnlTrafficView,"HTTP/Websocket traffic");
         jtabMain.addTab("Immediate", null, pnlImmediateView,"Immediate");
@@ -133,13 +136,6 @@ public class FrmMainView extends JFrame {
 
         jtabMain.addTab("Search", null, pnlTrafficSearchView,"Search HTTP/Websocket traffic");
         jtabMain.addTab("Anomalies", null, pnlAnomaliesView,"Detection events from passive and active scanner rules");
-        jtabMain.addTab("Payloads", null, pnlPayloadsView,"Payloads used by the scanners / fuzzers");
-        jtabMain.addTab("Rules", null, pnlRulesView,"Rules used by the scanners / fuzzers");
-        jtabMain.addTab("Environment", null, pnlEnvironmentView,"Environment variables");
-        jtabMain.addTab("Settings", null, pnlSettingsView,"Settings");
-        jtabMain.addTab("Library", null, pnlUpdatesView,"Library for payloads, scripts, and rules");
-        jtabMain.addTab("Logs", null, pnlLogs,"Application log");
-        jtabMain.addTab("Script console", null, pnlScriptConsole,"Run jython scripts");
         jtabMain.addTab("OOB", null, pnlInteractsh,"Out of band detections");
     }
 
@@ -170,9 +166,6 @@ public class FrmMainView extends JFrame {
         mnuFile = new JMenu("File");
         mnuFile.setMnemonic(KeyEvent.VK_F);
 
-        mnuEdit = new JMenu("Edit");
-        mnuEdit.setMnemonic(KeyEvent.VK_E);
-
         mnuProxy = new JMenu("Proxy");
         mnuProxy.setMnemonic(KeyEvent.VK_P);
 
@@ -184,13 +177,24 @@ public class FrmMainView extends JFrame {
         mnuHelp = new JMenu("Help");
         mnuHelp.setMnemonic(KeyEvent.VK_H);
 
+        mnuTestplan.add(mnuPayloads);
+        mnuTestplan.add(mnuRules);
+
         mnuProxy.add(mnuProxyStart);
         mnuProxy.add(mnuProxyStop);
         mnuProxy.add(mnuProxyRestart);
         mnuProxy.add(mnuExportCa);
+        mnuProxy.addSeparator();
+        mnuProxy.add(mnuSettings);
+        mnuProxy.add(mnuEnvironment);
+        mnuProxy.add(mnuLogs);
+
         mnuHelp.add(mnuUpdate);
 
         mnuTools.add(mnuEncodeDecode);
+        mnuTools.add(mnuScriptConsole);
+        mnuTools.add(mnuHttpRequestTester);
+        mnuTools.add(mnuProjectDataExplorer);
 
         mnuItemNewProject = new JMenuItem("New", KeyEvent.VK_C);
         mnuFile.add(mnuItemNewProject);
@@ -211,10 +215,9 @@ public class FrmMainView extends JFrame {
         mnuFile.add(mnuItemSaveAs);
         mnuItemClose = new JMenuItem("Close", KeyEvent.VK_C);
         mnuFile.add(mnuItemClose);
-        mnuProxy.addSeparator();
+
 
         mnuBarMainMenu.add(mnuFile);
-        mnuBarMainMenu.add(mnuEdit);
         mnuBarMainMenu.add(mnuProxy);
         mnuBarMainMenu.add(mnuTestplan);
         mnuBarMainMenu.add(mnuTools);

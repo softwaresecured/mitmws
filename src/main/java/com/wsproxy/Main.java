@@ -1,4 +1,6 @@
 package com.wsproxy;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wsproxy.configuration.ApplicationConfig;
 import com.wsproxy.environment.Environment;
 import com.wsproxy.httpproxy.HttpProxy;
@@ -26,6 +28,9 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Logger;
+
+import static java.lang.System.exit;
+
 public class Main {
     private static ApplicationConfig applicationConfig = new ApplicationConfig();
     private static Logger LOGGER = AppLog.getLogger(Main.class.getName());
@@ -155,6 +160,8 @@ public class Main {
     }
     public static void main(String[] args) throws UnknownHostException, InterruptedException {
         // Clear temp vars from previous run
+
+
         Environment environment = new Environment();
         environment.clearTemp();
 
@@ -199,12 +206,12 @@ public class Main {
         else {
             startGui();
         }
-        System.exit(0);
+        exit(0);
     }
 
     public static void displayStartupError(String message, int status) {
         System.out.println(message);
-        System.exit(status);
+        exit(status);
     }
 }
 

@@ -8,10 +8,8 @@ import com.wsproxy.httpproxy.websocket.WebsocketFrame;
 import com.wsproxy.httpproxy.websocket.WebsocketFrameType;
 import com.wsproxy.mvc.model.BreakpointModel;
 import com.wsproxy.mvc.model.InteractshModel;
-import com.wsproxy.mvc.model.LogModel;
 import com.wsproxy.mvc.popupmenus.PopupMenuPayloadEditorInsert;
 import com.wsproxy.mvc.view.panels.breakpoints.PnlBreakPointsView;
-import com.wsproxy.mvc.view.panels.logs.PnlLogs;
 import com.wsproxy.util.GuiUtils;
 
 import javax.swing.*;
@@ -24,9 +22,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 

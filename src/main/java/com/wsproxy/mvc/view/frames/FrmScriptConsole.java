@@ -1,18 +1,19 @@
-package com.wsproxy.mvc.view.panels.scriptconsole;
+package com.wsproxy.mvc.view.frames;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class PnlScriptConsole extends JPanel {
+public class FrmScriptConsole extends JFrame {
     private JSplitPane jsplt;
     public JTextArea jtxtScriptContent = new JTextArea("");
     public JTextArea jtxtScriptOutput = new JTextArea("");
     public JButton btnExecute = new JButton("Execute");
-    public PnlScriptConsole() {
+    public FrmScriptConsole() {
         initLayout();
     }
     public void initLayout() {
-
+        setTitle("Script Console");
+        setSize(800,600);
         jtxtScriptOutput.setEditable(false);
         JScrollPane scrollContent = new JScrollPane(jtxtScriptContent);
         JScrollPane scrollOutput = new JScrollPane(jtxtScriptOutput);
