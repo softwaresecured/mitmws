@@ -35,10 +35,14 @@ public class UpdatesController implements PropertyChangeListener {
         this.frmUpdatesView = frmUpdatesView;
         this.updatesModel.addListener(this);
         initEventListeners();
+        frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s",applicationConfig.getProperty("updates.url")));
         loadLocal();
         loadRemote();
     }
 
+    /*
+        Loads local content from the .wsproxy home directory
+     */
     public void loadLocal() {
         String paths[] = { "payloads","scripts/httpserver","scripts/rules/active","scripts/rules/passive","scripts/upgrade","scripts/variables" };
         for ( String path : paths ) {
@@ -52,12 +56,14 @@ public class UpdatesController implements PropertyChangeListener {
         GuiUtils.tableSelectLast(frmUpdatesView.pnlUpdatesTableViewer.jtblUpdates);
     }
 
+    /*
+        Load remote content
+     */
     public void loadRemote() {
         try {
             HashMap<String, String> availableUpdates = updateManager.getApplicableUpdates(ManifestUtils.manifestPaths);
             for ( String updateItem : availableUpdates.keySet()) {
                 updatesModel.addRepoItem(updateItem.split("[\\/]")[0],"Update",updateItem,true);
-                frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s",applicationConfig.getProperty("updates.url")));
             }
             frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnInstallUpdates.setEnabled( availableUpdates.size() > 0 ? true : false );
         } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidKeyException e) {
@@ -119,9 +125,8 @@ public class UpdatesController implements PropertyChangeListener {
                         }
                     }
                     if ( source.toLowerCase().equals("update")) {
-                        String remotePath = String.format("%s/%s", applicationConfig.getProperty("updates.url"),path);
                         try {
-                            content = NetUtils.getRemoteUrl(remotePath);
+                            content = updateManager.getRemoteContent(path);
                         } catch (IOException ex) {
                             frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.lblUpdateServerUrl.setText(String.format("%s (error)",applicationConfig.getProperty("updates.url")));
                         }
