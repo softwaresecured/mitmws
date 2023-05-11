@@ -81,6 +81,7 @@ public class ManualTestManagerActivityThread extends Thread {
         WebsocketClient websocketClient = new WebsocketClient();
         String conversationUUID = UUID.randomUUID().toString();
         boolean serverCloseRequested = false;
+        boolean clientCloseRequested = false;
         try {
             int testRunId = projectModel.getProjectDataService().getTestRunIdByName(testName);
             HttpMessage upgradeMsg = environment.process(EnvironmentItemScope.HTTP,sequence.getTestHttpMessage());
@@ -115,6 +116,11 @@ public class ManualTestManagerActivityThread extends Thread {
                             TestUtil.delay(sequenceItem.getDelayMsec());
                             if ( sequenceItem.getFrame().getDirection().equals(WebsocketDirection.OUTBOUND)) {
                                 WebsocketFrame curFrame = sequenceItem.getFrame().getCopy();
+
+                                if ( sequenceItem.getFrame().getOpcode().equals(WebsocketFrameType.CLOSE)) {
+                                    clientCloseRequested = true;
+                                }
+
                                 if ( sequenceItem.getFrame().getOpcode().equals(WebsocketFrameType.TEXT)) {
                                     curFrame = environment.process(EnvironmentItemScope.WEBSOCKET, sequenceItem.getFrame().getCopy());
                                 }
@@ -153,7 +159,7 @@ public class ManualTestManagerActivityThread extends Thread {
                                         testSession.eventNotify(TestSessionEventType.FRAME_RECEIVED);
 
                                         // Handle server requested close
-                                        if ( readFrame.getOpcode().equals(WebsocketFrameType.CLOSE) && !serverCloseRequested) {
+                                        if ( readFrame.getOpcode().equals(WebsocketFrameType.CLOSE) && !serverCloseRequested && !clientCloseRequested) {
                                             serverCloseRequested = true;
                                             WebsocketFrame closeMsg = new WebsocketFrame();
                                             closeMsg.setFin(1);
