@@ -149,12 +149,11 @@ public class ManualTestManagerActivityThread extends Thread {
                                         readFrame.setConversationUUID(conversationUUID);
                                         readFrame.setUpgradeMessageUUID(upgradeMsg.getMessageUUID());
                                         logger.logRFC6455Message(TrafficSource.MANUAL_TEST,readFrame,testName,testRunId);
-
                                         testSession.setLastFrame(readFrame);
                                         testSession.eventNotify(TestSessionEventType.FRAME_RECEIVED);
 
                                         // Handle server requested close
-                                        if ( readFrame.getOpcode().equals(WebsocketFrameType.CLOSE)) {
+                                        if ( readFrame.getOpcode().equals(WebsocketFrameType.CLOSE) && !serverCloseRequested) {
                                             serverCloseRequested = true;
                                             WebsocketFrame closeMsg = new WebsocketFrame();
                                             closeMsg.setFin(1);

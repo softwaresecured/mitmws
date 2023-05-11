@@ -22,8 +22,20 @@ public class UpdateManager {
 
     }
 
-    public String getManifestUrl() {
-        return String.format("%s/manifest.txt", applicationConfig.getProperty("updates.url"));
+
+    /*
+        The update base URL can either be from github or a selfhosted URL
+        If github:
+            - we replace github with raw.githubusercontent.com
+            - we add /main/ for the main branch
+     */
+    public String getUpdateBaseUrl() {
+        String url = applicationConfig.getProperty("updates.url");
+        if ( url.contains("github.com")) {
+            url = url.replaceFirst("github.com","raw.githubusercontent.com");
+            url += "/main/";
+        }
+        return url;
     }
 
     public void update() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
@@ -32,7 +44,7 @@ public class UpdateManager {
 
     public void applyUpdates( HashMap<String,String> updates ) throws IOException, NoSuchAlgorithmException {
         for ( String path : updates.keySet()) {
-            String updateUrl = String.format("%s/%s", applicationConfig.getProperty("updates.url"), path);
+            String updateUrl = String.format("%s/%s", getUpdateBaseUrl(), path);
             String updateContent = NetUtils.getRemoteUrl(updateUrl);
             String remoteHash = HashUtils.sha256sum(updateContent.getBytes(StandardCharsets.UTF_8));
             if ( updates.get(path).equals(remoteHash)) {
@@ -48,7 +60,7 @@ public class UpdateManager {
     public HashMap<String,String> getApplicableUpdates(String[] manifestPaths) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
         HashMap<String,String> applicableUpdates = new HashMap<>();
         String localManifest = ManifestUtils.generateManifest(applicationConfig.getConfigDirPath(),manifestPaths);
-        String updateManifest = ManifestUtils.getRemoteManifest(applicationConfig.getProperty("updates.url"));
+        String updateManifest = ManifestUtils.getRemoteManifest(getUpdateBaseUrl());
         PublicKey publicKey = RSACrypto.decodePublicKeyB64(applicationConfig.getProperty("updates.public_key"));
         if ( ManifestUtils.verifyManifest(publicKey, updateManifest)) {
             HashMap<String,String> updateMap = ManifestUtils.manifestToMap(updateManifest);
@@ -70,6 +82,16 @@ public class UpdateManager {
             LOGGER.severe("Invalid signature on manifest - update aborted.");
         }
         return applicableUpdates;
+    }
+
+    /*
+        Gets remote content from the repo ( files / manifest etc )
+     */
+    public String getRemoteContent( String path) throws IOException {
+        String remotePath = String.format("%s/%s", getUpdateBaseUrl(),path);
+        String content = null;
+        content = NetUtils.getRemoteUrl(remotePath);
+        return content;
     }
 
 }
