@@ -1,18 +1,22 @@
 package com.wsproxy.anomalydetection;
 
+import com.wsproxy.Main;
 import com.wsproxy.configuration.ApplicationConfig;
 import com.wsproxy.httpproxy.trafficlogger.WebsocketTrafficRecord;
+import com.wsproxy.logging.AppLog;
 import com.wsproxy.util.ScriptUtil;
 
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 public class DetectionLibrary {
     private DetectionType detectionType;
     private HashMap<Integer, DetectionRule> rules = null;
     private ApplicationConfig applicationConfig = new ApplicationConfig();
+    private static Logger LOGGER = AppLog.getLogger(DetectionLibrary.class.getName());
     public DetectionLibrary( DetectionType detectionType ) {
         this.detectionType = detectionType;
         rules = new HashMap<>();
@@ -45,7 +49,12 @@ public class DetectionLibrary {
         return rules;
     }
 
-    public void load() {
+    /*
+        runSelfTest argument determines if a test is run on loading of the rule
+        the detector threads don't do self tests because the assumption is that they were already tested by the main
+        thread
+     */
+    public void load(boolean runSelfTest) {
         String scriptRuleType = "active";
         if ( detectionType.equals(DetectionType.PASSIVE)) {
             scriptRuleType = "passive";
@@ -57,7 +66,20 @@ public class DetectionLibrary {
                     int ruleNo = Integer.parseInt(script.split("\\.")[0]);
                     String scriptFileName = String.format("%s/scripts/rules/%s/%s", applicationConfig.getConfigDirPath(),scriptRuleType, script);
                     DetectionRule rule = new DetectionRule(scriptFileName);
-                    rules.put(ruleNo,rule);
+                    if ( runSelfTest ) {
+                        DetectionRuleSelfTestStatus result = rule.selfTest();
+                        if ( !result.isSelfTestOK() ) {
+                            for ( String error : result.getSelfTestErrors()) {
+                                LOGGER.severe(String.format("%d/%s - rule self test failed: %s", ruleNo, rule.getName(),error));
+                            }
+                        }
+                        else {
+                            rules.put(ruleNo,rule);
+                        }
+                    }
+                    else {
+                        rules.put(ruleNo,rule);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -67,6 +89,7 @@ public class DetectionLibrary {
 
         }
     }
+
     /*
         Runs all rules of a particular class on the records ( passive )
      */
