@@ -59,8 +59,8 @@ public class RulesModel {
         detectionRuleTableModel.setRowCount(0);
         passiveRules = new DetectionLibrary(DetectionType.PASSIVE);
         activeRules = new DetectionLibrary(DetectionType.ACTIVE);
-        passiveRules.load();
-        activeRules.load();
+        passiveRules.load(true);
+        activeRules.load(true);
         if ( disabled ) {
             for ( Integer ruleId: passiveRules.getRules().keySet() ) {
                 passiveRules.getRules().get(ruleId).setEnabled(false);

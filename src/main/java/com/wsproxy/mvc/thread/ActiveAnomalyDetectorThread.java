@@ -53,7 +53,7 @@ public class ActiveAnomalyDetectorThread extends Thread {
     }
     public void run() {
         DetectionLibrary detectionLibrary = new DetectionLibrary(DetectionType.ACTIVE);
-        detectionLibrary.load();
+        detectionLibrary.load(false);
         LOGGER.info("Active anomaly detector started");
         while ( !shutdownRequested ) {
             try {

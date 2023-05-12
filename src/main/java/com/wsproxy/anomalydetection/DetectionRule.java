@@ -283,5 +283,20 @@ public class DetectionRule {
         return null;
     }
 
+    /*
+        Runs the rule self test
+     */
+    public DetectionRuleSelfTestStatus selfTest() {
+        try {
+            DetectionRuleSelfTestStatus result = (DetectionRuleSelfTestStatus) script.executeFunction("selfTest", null );
+            if ( result != null ) {
+                return result;
+            }
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }
