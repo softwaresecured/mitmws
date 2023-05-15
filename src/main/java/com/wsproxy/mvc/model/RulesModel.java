@@ -4,6 +4,7 @@ import com.wsproxy.anomalydetection.DetectionLibrary;
 import com.wsproxy.anomalydetection.DetectionRule;
 import com.wsproxy.anomalydetection.DetectionType;
 
+import javax.script.ScriptException;
 import javax.swing.event.SwingPropertyChangeSupport;
 import javax.swing.table.DefaultTableModel;
 import java.beans.PropertyChangeListener;
@@ -80,14 +81,18 @@ public class RulesModel {
     public void addRules(HashMap<Integer, DetectionRule> rules, String detector ) {
         // "Enabled", "ID", "Detector","Rule name", "Description"
         for ( Integer ruleId : rules.keySet()) {
-            detectionRuleTableModel.addRow(new Object[]{
-                    rules.get(ruleId).isEnabled(),
-                    ruleId,
-                    detector,
-                    rules.get(ruleId).getCategory(),
-                    rules.get(ruleId).getName(),
-                    rules.get(ruleId).getDescription()
-            });
+            try {
+                detectionRuleTableModel.addRow(new Object[]{
+                        rules.get(ruleId).isEnabled(),
+                        ruleId,
+                        detector,
+                        rules.get(ruleId).getCategory(),
+                        rules.get(ruleId).getName(),
+                        rules.get(ruleId).getDescription()
+                });
+            } catch (ScriptException e) {
+                e.printStackTrace();
+            }
         }
     }
     public DefaultTableModel getDetectionRuleTableModel() {

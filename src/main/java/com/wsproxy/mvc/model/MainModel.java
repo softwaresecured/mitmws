@@ -63,11 +63,11 @@ public class MainModel {
         settingsModel = new SettingsModel();
         immediateModel = new ImmediateModel();
         payloadsModel = new PayloadsModel();
-        rulesModel = new RulesModel();
         eventEmitter = new SwingPropertyChangeSupport(this);
         httpServer = new HttpServer();
         analyzerModel = new AnalyzerModel();
         interactshModel = new InteractshModel();
+        rulesModel = new RulesModel(); // needs to be after interactsh-model
         protocolTesterModel = new ProtocolTesterModel();
         scriptConsoleModel = new ScriptConsoleModel();
         breakpointModel = new BreakpointModel();

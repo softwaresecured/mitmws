@@ -339,8 +339,12 @@ public class AutomatedTesterController implements PropertyChangeListener {
         // add in FUZZ-PAYLOAD rules
         for ( int ruleId : mainModel.getRulesModel().getActiveRules().getRules().keySet() ) {
             DetectionRule rule = mainModel.getRulesModel().getActiveRules().getRules().get(ruleId);
-            if ( rule.isEnabled() && rule.getActiveRuleType().equals("PAYLOAD-FUZZ")) {
-                payloadCount += fuzzRange;
+            try {
+                if ( rule.isEnabled() && rule.getActiveRuleType().equals("PAYLOAD-FUZZ")) {
+                    payloadCount += fuzzRange;
+                }
+            } catch (ScriptException e) {
+                e.printStackTrace();
             }
         }
         automatedTesterModel.setTotalPayloadCount(payloadCount);

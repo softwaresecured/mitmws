@@ -43,6 +43,8 @@ public class InteractshModel {
     private HashMap<String, String> payloadConversationMap = new HashMap<>();
     ApplicationConfig applicationConfig = new ApplicationConfig();
     private SwingPropertyChangeSupport eventEmitter;
+    private boolean testMode = false;
+
     public InteractshModel() {
         interactionsTableModel = new DefaultTableModel();
         for ( String col: new String[] { "id","Unique ID", "Timestamp","Remote ip", "Protocol","Request"}) {
@@ -53,6 +55,10 @@ public class InteractshModel {
             pollIntervalMs = configPollinterval * 1000;
         }
         eventEmitter = new SwingPropertyChangeSupport(this);
+    }
+
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
     }
 
     private void regenerateSecret() {
@@ -96,8 +102,11 @@ public class InteractshModel {
     }
 
     public String getPayload() {
+        if ( testMode ) {
+            return String.format("%s%s.%s", "a", "b", "c.d");
+        }
         if ( correlationId != null ) {
-            return String.format("%s%s.%s", correlationId,getRandomId(13),host);
+            return String.format("%s%s.%s", correlationId, getRandomId(13), host);
         }
         return null;
     }

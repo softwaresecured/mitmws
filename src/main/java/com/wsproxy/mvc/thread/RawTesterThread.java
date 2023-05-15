@@ -52,16 +52,20 @@ public class RawTesterThread extends Thread {
         int count = 0;
         for ( int ruleId :  mainModel.getRulesModel().getActiveRules().getRules().keySet() ) {
             DetectionRule rule = mainModel.getRulesModel().getActiveRules().getRules().get(ruleId);
-            if ( rule.isEnabled() && rule.getTestScope().equals("PRESENTATION-WS")) {
-                if ( rule.getActiveRuleType().equals("FUZZ-FRAME") || rule.getActiveRuleType().equals("FUZZ-FRAME-HEADER")) {
-                    count += rule.getFuzzRange();
-                }
-                if ( rule.getActiveRuleType().equals("FRAME-CREATOR") ) {
-                    for ( WebsocketFrame curFrame : mainModel.getProtocolTesterModel().getBaseFrames()) {
-                        ArrayList<RawWebsocketFrame> mutatedFrames = rule.getMutations(curFrame);
-                        count += mutatedFrames.size();
+            try {
+                if ( rule.isEnabled() && rule.getTestScope().equals("PRESENTATION-WS")) {
+                    if ( rule.getActiveRuleType().equals("FUZZ-FRAME") || rule.getActiveRuleType().equals("FUZZ-FRAME-HEADER")) {
+                        count += rule.getFuzzRange();
+                    }
+                    if ( rule.getActiveRuleType().equals("FRAME-CREATOR") ) {
+                        for ( WebsocketFrame curFrame : mainModel.getProtocolTesterModel().getBaseFrames()) {
+                            ArrayList<RawWebsocketFrame> mutatedFrames = rule.getMutations(curFrame);
+                            count += mutatedFrames.size();
+                        }
                     }
                 }
+            } catch (ScriptException e) {
+                e.printStackTrace();
             }
         }
         return count;
@@ -111,7 +115,12 @@ public class RawTesterThread extends Thread {
     }
 
     private void detectAnomalies( DetectionRule rule, String testName, ArrayList<WebsocketTrafficRecord> inboundFrames, String fuzzFrameHexStr) {
-        ArrayList<DetectedAnomaly> detectedAnomalies = rule.getDetectedAnomaliesForSequence(inboundFrames);
+        ArrayList<DetectedAnomaly> detectedAnomalies = null;
+        try {
+            detectedAnomalies = rule.getDetectedAnomaliesForSequence(inboundFrames);
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
         if ( detectedAnomalies != null ) {
             for ( DetectedAnomaly anomaly : detectedAnomalies ) {
                 LOGGER.info(String.format("Logged anomaly %s for sequence %s", anomaly.getAnomalyId(), anomaly.getConversationUuid()));
