@@ -89,10 +89,10 @@ public class MainController implements PropertyChangeListener {
         settingsController = new SettingsController(mainModel,frmMainView.frmSettingsView);
         immediateController = new ImmediateController(mainModel,model.getImmediateModel(),mainModel.getProjectModel(),mainModel.getProxy().getLogger(),frmMainView.pnlImmediateView);
         payloadsController = new PayloadsController(mainModel.getPayloadsModel(),frmMainView.frmPayloadsView);
+        interactshController = new InteractshController(mainModel.getInteractshModel(),mainModel,frmMainView.pnlInteractsh);
         rulesController = new RulesController(mainModel.getRulesModel(),frmMainView.frmRulesView);
         protocolTesterController = new ProtocolTesterController(mainModel,frmMainView.pnlProtocolTesterView);
         scriptConsoleController = new ScriptConsoleController(mainModel.getScriptConsoleModel(),frmMainView.frmScriptConsole);
-        interactshController = new InteractshController(mainModel.getInteractshModel(),mainModel,frmMainView.pnlInteractsh);
         encoderDecoderToolController = new EncoderDecoderToolController(mainModel.getEncoderDecoderToolModel(),frmMainView.frmEncoderDecoderToolView);
         httpRequestController = new HttpRequestController(mainModel.getHttpRequestTesterModel(),frmMainView.frmHttpRequestTester);
         projectDataExplorerController = new ProjectDataExplorerController(mainModel,frmMainView.frmProjectDataExplorer);

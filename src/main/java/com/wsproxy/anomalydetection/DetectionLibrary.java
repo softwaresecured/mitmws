@@ -3,7 +3,11 @@ package com.wsproxy.anomalydetection;
 import com.wsproxy.Main;
 import com.wsproxy.configuration.ApplicationConfig;
 import com.wsproxy.httpproxy.trafficlogger.WebsocketTrafficRecord;
+import com.wsproxy.httpproxy.websocket.WebsocketFrame;
 import com.wsproxy.logging.AppLog;
+import com.wsproxy.mvc.model.InteractShTestPayload;
+import com.wsproxy.mvc.model.InteractshModel;
+import com.wsproxy.tester.RawWebsocketFrame;
 import com.wsproxy.util.ScriptUtil;
 
 import javax.script.ScriptException;
@@ -38,8 +42,12 @@ public class DetectionLibrary {
     public int getEnabledPayloadCount() {
         int count = 0;
         for ( int ruleId : rules.keySet() ) {
-            if ( rules.get(ruleId).isEnabled() && rules.get(ruleId).getTestScope().equals("APPLICATION") && rules.get(ruleId).getActiveRuleType().equals("PAYLOAD")) {
-                count += rules.get(ruleId).getPayloads().size();
+            try {
+                if ( rules.get(ruleId).isEnabled() && rules.get(ruleId).getTestScope().equals("APPLICATION") && rules.get(ruleId).getActiveRuleType().equals("PAYLOAD")) {
+                    count += rules.get(ruleId).getPayloads().size();
+                }
+            } catch (ScriptException e) {
+                e.printStackTrace();
             }
         }
         return count;
@@ -50,11 +58,11 @@ public class DetectionLibrary {
     }
 
     /*
-        runSelfTest argument determines if a test is run on loading of the rule
+        runTests argument determines if a test is run on loading of the rule
         the detector threads don't do self tests because the assumption is that they were already tested by the main
         thread
      */
-    public void load(boolean runSelfTest) {
+    public void load(boolean runTests) {
         String scriptRuleType = "active";
         if ( detectionType.equals(DetectionType.PASSIVE)) {
             scriptRuleType = "passive";
@@ -66,14 +74,9 @@ public class DetectionLibrary {
                     int ruleNo = Integer.parseInt(script.split("\\.")[0]);
                     String scriptFileName = String.format("%s/scripts/rules/%s/%s", applicationConfig.getConfigDirPath(),scriptRuleType, script);
                     DetectionRule rule = new DetectionRule(scriptFileName);
-                    if ( runSelfTest ) {
-                        DetectionRuleSelfTestStatus result = rule.selfTest();
-                        if ( !result.isSelfTestOK() ) {
-                            for ( String error : result.getSelfTestErrors()) {
-                                LOGGER.severe(String.format("%d/%s - rule self test failed: %s", ruleNo, rule.getName(),error));
-                            }
-                        }
-                        else {
+
+                    if ( runTests ) {
+                        if ( testRule(ruleNo,rule, detectionType) ) {
                             rules.put(ruleNo,rule);
                         }
                     }
@@ -91,6 +94,100 @@ public class DetectionLibrary {
     }
 
     /*
+        Runs tests on a rule
+     */
+
+    private boolean testRule ( int ruleNo, DetectionRule rule, DetectionType detectionType ) {
+        boolean testOk = true;
+        String ruleName = "";
+        // If it has no name we can't write detailed errors about it
+        try {
+            String name = rule.getName();
+            if ( name == null || name.length() == 0 ) {
+                rule.setErrorFlag(true);
+                return false;
+            }
+            ruleName = name;
+        } catch (ScriptException e) {
+            rule.setErrorFlag(true);
+            return false;
+
+        }
+
+
+        try {
+            // Test that the rule has all the functions that we're expecting for a proper active/passive rule
+
+            // Applies to all rules
+            String description = rule.getDescription();
+            String category = rule.getCategory();
+            String testScope = rule.getTestScope();
+            ArrayList<String> frameScopes = rule.getFrameScope();
+
+            ArrayList<WebsocketTrafficRecord> conversation = new ArrayList<WebsocketTrafficRecord>();
+            ArrayList<ArrayList<WebsocketTrafficRecord>> conversations = new ArrayList<ArrayList<WebsocketTrafficRecord>>();
+
+            // Analyze active
+            if ( detectionType.equals(DetectionType.ACTIVE)) {
+                rule.getDetectedAnodmaliesForSequences(conversations);
+                String activeRuleType = rule.getActiveRuleType(); // active only
+                double ratio;
+                int range;
+                String result;
+
+
+                switch (activeRuleType) {
+                    case "PAYLOAD":
+                        ArrayList<String> payloads = rule.getPayloads();
+                        break;
+                    case "FUZZ-FRAME":
+                        WebsocketFrame testFrame = new WebsocketFrame();
+                        ratio = rule.getFuzzRatio();
+                        range = rule.getFuzzRange();
+                        result = rule.getPayloadMutationBySeed("test",1,1);
+                        break;
+                    case "FUZZ-PAYLOAD":
+                        String payload = rule.getPayloadMutationBySeed("Test",1,1);
+                        break;
+                    case "FUZZ-FRAME-HEADER":
+                        ratio = rule.getFuzzRatio();
+                        range = rule.getFuzzRange();
+                        result = rule.getFrameMutationBySeed("test",1,1,1);
+                        break;
+                    case "PAYLOAD-INTERACTSH":
+                        InteractshModel interactshModel = new InteractshModel();
+                        interactshModel.setTestMode(true);
+                        ArrayList<InteractShTestPayload> oobPayloads = rule.getOOBPayloads(interactshModel);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                rule.getDetectedAnomaliesForSequence(conversation);
+            }
+
+            // Finally run the self test
+            DetectionRuleSelfTestStatus selfTestResults = rule.selfTest();
+            if (!selfTestResults.isSelfTestOK()) {
+                for (String error : selfTestResults.getSelfTestErrors()) {
+                    LOGGER.severe(String.format("%d/%s - rule self test failed: %s", ruleNo, ruleName, error));
+                }
+            }
+        } catch ( ClassCastException e ) {
+            LOGGER.severe(String.format("%d/%s - rule test failed: %s", ruleNo, ruleName, e.getMessage()));
+            testOk = false;
+        } catch (ScriptException e) {
+            LOGGER.severe(String.format("%d/%s - rule test failed: %s", ruleNo, ruleName, e.getMessage()));
+            testOk = false;
+        }
+        if ( testOk ) {
+            LOGGER.info(String.format("%d/%s - rule test OK", ruleNo, ruleName));
+        }
+        return testOk;
+    }
+
+    /*
         Runs all rules of a particular class on the records ( passive )
      */
     public ArrayList<DetectedAnomaly> detectAnomalies(ArrayList<WebsocketTrafficRecord> records, String testName ) {
@@ -98,7 +195,12 @@ public class DetectionLibrary {
         for ( Integer ruleId : rules.keySet()) {
             DetectionRule rule = rules.get(ruleId);
             if ( rule.isEnabled() ) {
-                ArrayList<DetectedAnomaly> detectedAnomalies = rule.getDetectedAnomaliesForSequence(records);
+                ArrayList<DetectedAnomaly> detectedAnomalies = null;
+                try {
+                    detectedAnomalies = rule.getDetectedAnomaliesForSequence(records);
+                } catch (ScriptException e) {
+                    e.printStackTrace();
+                }
                 if ( detectedAnomalies != null ) {
                     for ( DetectedAnomaly anomaly : detectedAnomalies ) {
                         anomaly.setDetector("Passive");
@@ -117,7 +219,11 @@ public class DetectionLibrary {
         ArrayList<DetectedAnomaly> anomalies = null;
         DetectionRule rule = rules.get(ruleId);
         if ( rule != null ) {
-            anomalies = rule.getDetectedAnodmaliesForSequences(conversations);
+            try {
+                anomalies = rule.getDetectedAnodmaliesForSequences(conversations);
+            } catch (ScriptException e) {
+                e.printStackTrace();
+            }
             if ( anomalies != null ) {
                 for ( DetectedAnomaly anomaly : anomalies ) {
                     anomaly.setDetector("Active");

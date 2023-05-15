@@ -65,8 +65,12 @@ public class AutomatedTestManagerActivityThread extends Thread {
         // get the range of fuzz tests if present
         for ( int ruleId : detectionRules.keySet() ) {
             DetectionRule rule = detectionRules.get(ruleId);
-            if (rule.isEnabled() && rule.getActiveRuleType().equals("PAYLOAD-FUZZ")) {
-                fuzzRange = automatedTesterModel.getAutomatedTestExecutionModel().getCurrentTestRun().getFuzzSeedEnd()-automatedTesterModel.getAutomatedTestExecutionModel().getCurrentTestRun().getFuzzSeedStart();
+            try {
+                if (rule.isEnabled() && rule.getActiveRuleType().equals("PAYLOAD-FUZZ")) {
+                    fuzzRange = automatedTesterModel.getAutomatedTestExecutionModel().getCurrentTestRun().getFuzzSeedEnd()-automatedTesterModel.getAutomatedTestExecutionModel().getCurrentTestRun().getFuzzSeedStart();
+                }
+            } catch (ScriptException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -120,14 +124,18 @@ public class AutomatedTestManagerActivityThread extends Thread {
             }
             for ( int ruleId : detectionRules.keySet() ) {
                 if ( detectionRules.get(ruleId).isEnabled()) {
-                    if (detectionRules.get(ruleId).getActiveRuleType().equals("PAYLOAD")) {
-                        count += detectionRules.get(ruleId).getPayloads().size();
-                    }
-                    if (detectionRules.get(ruleId).getActiveRuleType().equals("PAYLOAD-INTERACTSH")) {
-                        count += detectionRules.get(ruleId).getOOBPayloads(interactshModel).size();
-                    }
-                    if (detectionRules.get(ruleId).getActiveRuleType().equals("PAYLOAD-FUZZ")) {
-                        count += fuzzRange;
+                    try {
+                        if (detectionRules.get(ruleId).getActiveRuleType().equals("PAYLOAD")) {
+                            count += detectionRules.get(ruleId).getPayloads().size();
+                        }
+                        if (detectionRules.get(ruleId).getActiveRuleType().equals("PAYLOAD-INTERACTSH")) {
+                            count += detectionRules.get(ruleId).getOOBPayloads(interactshModel).size();
+                        }
+                        if (detectionRules.get(ruleId).getActiveRuleType().equals("PAYLOAD-FUZZ")) {
+                            count += fuzzRange;
+                        }
+                    } catch (ScriptException e) {
+                        e.printStackTrace();
                     }
                 }
             }

@@ -87,8 +87,7 @@ public class Script {
         try {
             result = invocable.invokeFunction(functionName, args);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new ScriptException(e.getMessage());
+            throw new ScriptException(String.format("Can't call %s - not defined", functionName));
         }
         return result;
     }
