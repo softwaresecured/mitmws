@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/WsProxy.iml" filepath="$PROJECT_DIR$/WsProxy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mitmws.iml" filepath="$PROJECT_DIR$/mitmws.iml" />
     </modules>
   </component>
 </project>

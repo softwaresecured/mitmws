@@ -1,6 +1,6 @@
-# WsProxy
+# MitmWs
 
-WsProxy is an HTTP proxy designed specifically for pentesting applications that use websockets.
+MitmWs is an HTTP proxy designed specifically for pentesting applications that use websockets.
 
 # Current work in progress
 - analyzer model
@@ -30,6 +30,6 @@ WsProxy is an HTTP proxy designed specifically for pentesting applications that 
 - WebRTC support
 
 # Installation
- 1. Download WsProxy from the [releases](https://github.com/softwaresecured/wsproxy/releases/tag/alpha) tab
+ 1. Download MitmWs from the [releases](https://github.com/softwaresecured/mitmws/releases/tag/alpha) tab
  2. Extract to convenient location
- 3. Run `wsproxy`
+ 3. Run `mitmws`

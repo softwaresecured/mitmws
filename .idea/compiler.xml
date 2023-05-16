@@ -7,16 +7,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="WsProxy" />
+        <module name="mitmws" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="WsProxy" target="9" />
+      <module name="mitmws" target="9" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="WsProxy" options="--add-exports java.base/sun.security.provider=ALL-UNNAMED" />
+      <module name="mitmws" options="--add-exports java.base/sun.security.provider=ALL-UNNAMED" />
     </option>
   </component>
 </project>

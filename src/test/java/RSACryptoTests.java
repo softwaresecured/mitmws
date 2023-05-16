@@ -1,4 +1,4 @@
-import com.wsproxy.pki.RSACrypto;
+import com.mitmws.pki.RSACrypto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

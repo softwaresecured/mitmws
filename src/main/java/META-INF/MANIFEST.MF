@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Main-Class: com.wsproxy.Main
+Main-Class: com.mitmws.Main
 Class-Path: lib/bcprov-jdk15on-1.70.jar lib/bcpkix-jdk15on-1.70.jar lib/
  bcprov-jdk15on-1.70.jar lib/bcutil-jdk15on-1.70.jar lib/bcpg-jdk15to18-
  170.jar lib/bctls-jdk15to18-170.jar lib/bcmail-jdk15to18-170.jar lib/bc
