@@ -20,11 +20,14 @@ package com.mitmws.version;
     0.1.17  - Breakpoints
     0.1.18  - Headless, encode / decode
     0.1.19  - Moved non-test related tabs to windows
+    0.1.20  - Rule tests
+    0.1.21  - bugfixes
+    0.1.22  - Rename tool
  */
 public final class VERSION {
     public static final int VERSION_MAJOR = 0;
     public static final int VERSION_MINOR = 1;
-    public static final int VERSION_PATCH = 19;
+    public static final int VERSION_PATCH = 22;
 
     public static String getVersionStr() {
         return String.format("%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
