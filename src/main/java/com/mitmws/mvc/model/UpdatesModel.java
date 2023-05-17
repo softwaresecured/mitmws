@@ -5,6 +5,7 @@ import com.mitmws.updates.UpdateManager;
 import javax.swing.event.SwingPropertyChangeSupport;
 import javax.swing.table.DefaultTableModel;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UpdatesModel {
@@ -12,6 +13,7 @@ public class UpdatesModel {
     private HashMap<String, String> availableUpdates;
     private HashMap<String, String> installedUpdates;
     private DefaultTableModel updatesTableModel;
+    private ArrayList<String> recentlyInstalledUpdates = new ArrayList<String>();
     private SwingPropertyChangeSupport eventEmitter;
     public UpdatesModel() {
         availableUpdates = new HashMap<String, String>();
@@ -59,6 +61,15 @@ public class UpdatesModel {
     public void setAvailableUpdates(HashMap<String, String> availableUpdates) {
         this.availableUpdates = availableUpdates;
         eventEmitter.firePropertyChange("UpdatesModel.availableUpdates", null, this.availableUpdates);
+    }
+
+    public ArrayList<String> getRecentlyInstalledUpdates() {
+        return recentlyInstalledUpdates;
+    }
+
+    public void setRecentlyInstalledUpdates(ArrayList<String> recentlyInstalledUpdates) {
+        this.recentlyInstalledUpdates = recentlyInstalledUpdates;
+        eventEmitter.firePropertyChange("UpdatesModel.recentlyInstalledUpdates", null, this.availableUpdates);
     }
 
     public void addListener(PropertyChangeListener listener ) {
