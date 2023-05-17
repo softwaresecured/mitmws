@@ -21,6 +21,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UpdatesController implements PropertyChangeListener {
@@ -88,7 +89,8 @@ public class UpdatesController implements PropertyChangeListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    updateManager.applyUpdates(updateManager.getApplicableUpdates(ManifestUtils.manifestPaths));
+                    ArrayList<String> installedUpdates = updateManager.applyUpdates(updateManager.getApplicableUpdates(ManifestUtils.manifestPaths));
+                    updatesModel.setRecentlyInstalledUpdates(installedUpdates);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } catch (NoSuchAlgorithmException ex) {

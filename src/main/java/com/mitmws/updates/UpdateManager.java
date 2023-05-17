@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -42,7 +43,8 @@ public class UpdateManager {
         applyUpdates(getApplicableUpdates(ManifestUtils.manifestPaths));
     }
 
-    public void applyUpdates( HashMap<String,String> updates ) throws IOException, NoSuchAlgorithmException {
+    public ArrayList<String> applyUpdates(HashMap<String,String> updates ) throws IOException, NoSuchAlgorithmException {
+        ArrayList<String> installedUpdates = new ArrayList<String>();
         for ( String path : updates.keySet()) {
             String updateUrl = String.format("%s/%s", getUpdateBaseUrl(), path);
             String updateContent = NetUtils.getRemoteUrl(updateUrl);
@@ -50,11 +52,13 @@ public class UpdateManager {
             if ( updates.get(path).equals(remoteHash)) {
                 FileUtils.putFileContent(String.format("%s/%s", applicationConfig.getConfigDirPath(),path),updateContent.getBytes(StandardCharsets.UTF_8));
                 LOGGER.info(String.format("Updating %s -> %s", updateUrl, path, updates.get(path)));
+                installedUpdates.add(path);
             }
             else {
                 LOGGER.severe(String.format("Hash failure %s, %s, %s != %s", updateUrl,path,remoteHash,updates.get(path)));
             }
         }
+        return installedUpdates;
     }
 
     public HashMap<String,String> getApplicableUpdates(String[] manifestPaths) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {

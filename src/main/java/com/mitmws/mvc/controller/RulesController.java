@@ -2,7 +2,9 @@ package com.mitmws.mvc.controller;
 
 import com.mitmws.anomalydetection.DetectionRule;
 import com.mitmws.configuration.ApplicationConfig;
+import com.mitmws.mvc.model.MainModel;
 import com.mitmws.mvc.model.RulesModel;
+import com.mitmws.mvc.model.UpdatesModel;
 import com.mitmws.mvc.view.frames.FrmRulesView;
 import com.mitmws.util.GuiUtils;
 
@@ -15,13 +17,20 @@ import java.util.HashMap;
 public class RulesController implements PropertyChangeListener {
 
     private RulesModel rulesModel;
+    private UpdatesModel updatesModel;
     private FrmRulesView frmRulesView;
 
-    public RulesController(RulesModel rulesModel, FrmRulesView frmRulesView) {
-        this.rulesModel = rulesModel;
+    public RulesController(MainModel mainModel, FrmRulesView frmRulesView) {
+        this.rulesModel = mainModel.getRulesModel();
+        this.updatesModel = mainModel.getUpdatesModel();
         this.frmRulesView = frmRulesView;
         this.rulesModel.addListener(this);
+        this.updatesModel.addListener(this);
         initEventListeners();
+        reloadRules();
+    }
+
+    public void reloadRules() {
         rulesModel.reloadAnomalyRules(true);
         GuiUtils.tableSelectFirst(frmRulesView.jtblDetectionRules);
         enabledDefaultRules();
@@ -74,6 +83,9 @@ public class RulesController implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
         if ( "RulesModel.detectionRuleTableModel".equals(propertyChangeEvent.getPropertyName())) {
 
+        }
+        if ( "UpdatesModel.recentlyInstalledUpdates".equals(propertyChangeEvent.getPropertyName())) {
+            reloadRules();
         }
     }
 }
