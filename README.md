@@ -30,6 +30,6 @@ MitmWs is an HTTP proxy designed specifically for pentesting applications that u
 - WebRTC support
 
 # Installation
- 1. Download MitmWs from the [releases](https://github.com/softwaresecured/mitmws/releases/tag/alpha) tab
+ 1. Download MitmWs from the [releases](https://github.com/softwaresecured/mitmws/releases/tag/beta) tab
  2. Extract to convenient location
  3. Run `mitmws`

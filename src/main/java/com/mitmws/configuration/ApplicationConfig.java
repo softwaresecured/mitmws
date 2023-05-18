@@ -264,8 +264,8 @@ public class ApplicationConfig {
         prop.setProperty("scripts.pythonpath", "/usr/bin/python3");
 
         prop.setProperty("updates.checkonstartup", "false");
-        prop.setProperty("updates.url", "http://localhost:8000/");
-        prop.setProperty("updates.public_key", "");
+        prop.setProperty("updates.url", "https://github.com/softwaresecured/mitmws-updates");
+        prop.setProperty("updates.public_key", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq5JvbLeXM08qULJtYjpojJ8+iwVEmhNQgnSzavpzNJywG7R4x+XK97fXG61dquh7+FvmgYXqNurp1nt0I5uY625tziRET2c8G4bBQuAZgz1qeT6oyXPlIef5WvN5bNXj+S/3ZhmizmQC8sMWMTSTGR/wl2Y1QgKZTc4PpPvUV4enLRhaUfWAzsGKsTnkRw4Wvh4IHaoAOLsmO4H7I9xmZkVWEoYyy/PQdXx39WoxRM1qpnH4Gu4UyY6tpP1bu+msqSwr8SptUMrF88OTatu4XhkbF/AKZWD5wlOMaFnyHnYyBXFZ0+zB+FJM5c29rYjuB1onhjBqKpjSqxWve7N5hwIDAQAB");
 
         prop.setProperty("betafeatures.enable-protocoltester", "false");
         prop.setProperty("betafeatures.enable-analyzer", "false");
