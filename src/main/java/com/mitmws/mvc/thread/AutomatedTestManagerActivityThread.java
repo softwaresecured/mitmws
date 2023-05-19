@@ -175,7 +175,11 @@ public class AutomatedTestManagerActivityThread extends Thread {
                     testRun.isReuseConnection(),
                     testRun.isDryRun())
             );
-            testLog("INFO", String.format("Running automated test sequence %s", testRun.getTestName()));
+            testLog("INFO", String.format("Running automated test sequence %s%s",
+                    testRun.getTestName(),
+                    testRun.isDryRun() ? "(Dry run)" :  ""
+                    )
+            );
             /*
                 Duplicate payloads that result from multiple encodings encoding to the same value are removed.
                 The test progress is offset by this value
@@ -185,10 +189,8 @@ public class AutomatedTestManagerActivityThread extends Thread {
                     continue;
                 }
                 if ( shutdownRequested ) {break;}
-                testLog("INFO", String.format("Testing target %s ( %d-%d )", testTarget.getTargetName(),testTarget.getStartPos(),testTarget.getEndPos()));
                 // Dry run
                 if ( testRun.isDryRun() ) {
-                    testLog("INFO", "Dry run mode - only running 1 payload");
                     ArrayList<byte[]> testPayloads = new ArrayList<byte[]>();
                     testPayloads.add("TESTPAYLOAD".getBytes(StandardCharsets.UTF_8));
                     testRun.setTestsCompleted(testRun.getTestsCompleted() + 1);
@@ -276,13 +278,15 @@ public class AutomatedTestManagerActivityThread extends Thread {
             }
         } catch (IOException|ClassNotFoundException|ProjectDataServiceException| WebsocketException |ScriptException|HttpMessageParseException e) {
             e.printStackTrace();
-            testLog("ERROR",e.getMessage());
+            testLog("ERROR", String.format("A fatal test error has occurred: %s", e.getMessage()));
         }
         if ( shutdownRequested ) {
+            testLog("INFO","Test terminated");
             testRun.setStatus("STOPPED");
         }
         else {
             testRun.setStatus("COMPLETE");
+            testLog("INFO","Test complete");
         }
         updateTestStatus();
     }
@@ -290,6 +294,7 @@ public class AutomatedTestManagerActivityThread extends Thread {
     public ArrayList<String> testPayloadBatch(WebsocketClient websocketClient, ArrayList<byte[]> testPayloads, int testRunId, TestTarget testTarget ) throws WebsocketException, ScriptException, HttpMessageParseException {
         ArrayList<String> conversations = new ArrayList<String>();
         for ( byte testPayload[] : testPayloads ) {
+            String testError = null;
             if ( shutdownRequested ) {break;}
 
             if ( !websocketClient.isConnected() ) {
@@ -299,15 +304,22 @@ public class AutomatedTestManagerActivityThread extends Thread {
             try {
                 conversations.add(executeTest(websocketClient,testTarget,testPayload,testRunId));
             } catch (WebsocketException e) {
-                testLog("ERROR",e.getMessage());
+                testError = e.getMessage();
             }
             finally {
                 if ( !testRun.isReuseConnection()) {
                     websocketClient.disconenct();
                 }
             }
-            //lastTestCompleted += 1;
-            testRun.setTestsCompleted(testRun.getTestsCompleted() + 1);
+            int testNo = testRun.getTestsCompleted() + 1;
+            String curPayload = GuiUtils.getSnippet(GuiUtils.getBinPreviewStr(testPayload), 32);
+            if ( testError != null ) {
+                testLog("INFO", String.format("Test %d - payload [%s] error while testing: %s",testNo,curPayload,testError));
+            }
+            else {
+                testLog("INFO", String.format("Test %d - payload [%s] complete",testNo,curPayload));
+            }
+            testRun.setTestsCompleted(testNo);
             updateTestStatus();
         }
         return conversations;
