@@ -5,7 +5,10 @@ import com.mitmws.httpproxy.websocket.WebsocketFrame;
 import com.mitmws.httpproxy.trafficlogger.HttpTrafficRecord;
 import com.mitmws.httpproxy.trafficlogger.WebsocketDirection;
 import com.mitmws.httpproxy.trafficlogger.WebsocketTrafficRecord;
+import com.mitmws.httpproxy.websocket.WebsocketFrameType;
 import com.mitmws.projects.ProjectDataServiceException;
+import com.mitmws.tester.TestSequenceItem;
+import com.mitmws.tester.TestSequenceItemType;
 import com.mitmws.util.FileUtils;
 import com.mitmws.util.GuiUtils;
 import com.mitmws.mvc.model.MainModel;
@@ -15,6 +18,7 @@ import com.mitmws.pki.BouncyCastleSSLProvider;
 import com.mitmws.pki.CertificateKeyBundle;
 import com.mitmws.pki.PKIProviderException;
 import com.mitmws.pki.PKIUtils;
+import com.mitmws.util.TestUtil;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -115,6 +119,7 @@ public class MainController implements PropertyChangeListener {
         frmMainView.pack();
         frmMainView.mnuItemImportFramesFromFile.setEnabled(false);
         frmMainView.mnuItemImportHttpFromFile.setEnabled(false);
+        frmMainView.mnuConversations.setEnabled(false);
     }
 
     public void attachListeners() {
@@ -188,6 +193,68 @@ public class MainController implements PropertyChangeListener {
 
 
     public void initEventListeners() {
+
+        /*
+            Add sample frames
+         */
+
+        frmMainView.mnuConversationHelloWorld.addActionListener( actionEvent -> {
+
+            ArrayList<TestSequenceItem> steps = new ArrayList<TestSequenceItem>();
+
+            // Text frame
+            WebsocketFrame frame = new WebsocketFrame();
+            frame.setFin(1);
+            frame.setDirection(WebsocketDirection.OUTBOUND);
+            frame.setOpcode(WebsocketFrameType.TEXT);
+            frame.setMasked(1);
+            frame.setMaskKey(frame.generateMaskBytes());
+            frame.setPayloadUnmasked(TestUtil.DEFAULT_TEST_WS_MESSAGE.getBytes());
+
+            TestSequenceItem item = new TestSequenceItem();
+            item.setDelayMsec(0);
+            item.setTestSequenceItemType(TestSequenceItemType.FRAME);
+            item.setFrame(frame);
+            steps.add(item);
+
+            // A ping
+            frame = new WebsocketFrame();
+            frame.setFin(1);
+            frame.setDirection(WebsocketDirection.OUTBOUND);
+            frame.setOpcode(WebsocketFrameType.PING);
+            frame.setMasked(1);
+            frame.setMaskKey(frame.generateMaskBytes());
+            frame.setPayloadUnmasked("ABCDEFG".getBytes(StandardCharsets.UTF_8));
+            item = new TestSequenceItem();
+            item.setDelayMsec(0);
+            item.setTestSequenceItemType(TestSequenceItemType.FRAME);
+            item.setFrame(frame);
+            steps.add(item);
+
+            // A close
+            frame = new WebsocketFrame();
+            frame.setFin(1);
+            frame.setDirection(WebsocketDirection.OUTBOUND);
+            frame.setOpcode(WebsocketFrameType.CLOSE);
+            frame.setMasked(1);
+            frame.setMaskKey(frame.generateMaskBytes());
+            frame.setPayloadUnmasked(null);
+            item = new TestSequenceItem();
+            item.setDelayMsec(0);
+            item.setTestSequenceItemType(TestSequenceItemType.FRAME);
+            item.setFrame(frame);
+            steps.add(item);
+
+            // An IOWAIT
+            item = new TestSequenceItem();
+            item.setDelayMsec(1000);
+            item.setTestSequenceItemType(TestSequenceItemType.IOWAIT);
+            steps.add(item);
+
+            manualTesterController.addTestSteps(steps);
+
+        });
+
         /*
             Import export traffic sub menus
          */
@@ -350,8 +417,10 @@ public class MainController implements PropertyChangeListener {
                 if( frmMainView.jtabMain.getTitleAt(frmMainView.jtabMain.getSelectedIndex()).startsWith("Manual tester") || frmMainView.jtabMain.getTitleAt(frmMainView.jtabMain.getSelectedIndex()).startsWith("Immediate") ){
                     frmMainView.mnuItemImportFramesFromFile.setEnabled(true);
                     frmMainView.mnuItemImportHttpFromFile.setEnabled(true);
+                    frmMainView.mnuConversations.setEnabled(true);
                 }
                 else {
+                    frmMainView.mnuConversations.setEnabled(false);
                     frmMainView.mnuItemImportFramesFromFile.setEnabled(false);
                     frmMainView.mnuItemImportHttpFromFile.setEnabled(false);
                 }

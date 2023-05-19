@@ -50,6 +50,13 @@ public class FrmMainView extends JFrame {
     public JMenuItem mnuEncodeDecode = new JMenuItem("Encoder/Decoder");
     public JMenuItem mnuPayloads = new JMenuItem("Payloads");
     public JMenuItem mnuRules = new JMenuItem("Rules");
+
+    public JMenu mnuConversations = new JMenu("Conversations");
+    public JMenu mnuConversationsScript = new JMenu("Scripts");
+    public JMenu mnuConversationsSamples = new JMenu("Samples");
+    public JMenuItem mnuConversationHelloWorld = new JMenuItem("Hello world");
+
+
     public JMenuItem mnuHttpRequestTester = new JMenuItem("HTTP request tester");
     public JMenuItem mnuProjectDataExplorer = new JMenuItem("Project data query");
 
@@ -179,6 +186,12 @@ public class FrmMainView extends JFrame {
 
         mnuTestplan.add(mnuPayloads);
         mnuTestplan.add(mnuRules);
+        mnuTestplan.addSeparator();
+        mnuTestplan.add(mnuConversations);
+        mnuConversations.add(mnuConversationsScript);
+        mnuConversations.add(mnuConversationsSamples);
+        mnuConversationsSamples.add(mnuConversationHelloWorld);
+
 
         mnuProxy.add(mnuProxyStart);
         mnuProxy.add(mnuProxyStop);

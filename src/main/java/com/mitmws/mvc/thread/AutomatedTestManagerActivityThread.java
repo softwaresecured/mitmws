@@ -300,7 +300,6 @@ public class AutomatedTestManagerActivityThread extends Thread {
                 conversations.add(executeTest(websocketClient,testTarget,testPayload,testRunId));
             } catch (WebsocketException e) {
                 testLog("ERROR",e.getMessage());
-                e.printStackTrace();
             }
             finally {
                 if ( !testRun.isReuseConnection()) {
@@ -423,6 +422,7 @@ public class AutomatedTestManagerActivityThread extends Thread {
                             }
                         }
                         if ( serverCloseRequested ) {
+                            websocketClient.disconenct();
                             break;
                         }
                         if ( responses.size() > 0 ) {
