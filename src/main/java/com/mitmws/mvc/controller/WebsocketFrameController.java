@@ -9,6 +9,7 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.nio.ByteBuffer;
 
 /*
     The viewer/editor for websocket frames
@@ -88,6 +89,11 @@ public class WebsocketFrameController implements PropertyChangeListener  {
         });
         pnlWebsocketFrameView.pnlWsFrameEditorToolbar.jcmbOpcode.addActionListener( actionEvent -> {
             websocketFrameModel.setOpcode(WebsocketFrameType.valueOf(pnlWebsocketFrameView.pnlWsFrameEditorToolbar.jcmbOpcode.getSelectedItem().toString()));
+            if ( websocketFrameModel.getOpcode().equals(WebsocketFrameType.CLOSE)) {
+                short closeCodeNo = 1000;
+                byte closeCode[] = ByteBuffer.allocate(2).putShort(closeCodeNo).array();
+                websocketFrameModel.setPayloadUnmasked(closeCode);
+            }
         });
 
 
