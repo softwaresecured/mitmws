@@ -361,12 +361,18 @@ public class AutomatedTestManagerActivityThread extends Thread {
         if ( payloadSample.length > 100 ) {
             System.arraycopy(payload,0,payloadSample,0,100);
         }
-
         LOGGER.info(String.format("Testing target step %d %d-%d with payload: [%s]", testTarget.getTestableStepIdx(),testTarget.getStartPos(), testTarget.getEndPos(), GuiUtils.getBinPreviewStr(payloadSample)));
+
         int testableElementIdx = 0;
         boolean testInserted = false;
-        boolean serverCloseRequested = false;
+
+        int closeHandshakeSteps = 0;
+        WebsocketDirection closeHandshakeInitDirection = null;
+
         for ( TestSequenceItem testSequenceItem : testRun.getTestSequence().getTestSequenceItems()) {
+            /*
+                Send
+             */
             if ( testSequenceItem.getTestSequenceItemType().equals(TestSequenceItemType.FRAME)) {
                 TestUtil.delay(testSequenceItem.getDelayMsec());
                 if ( testSequenceItem.getFrame().getDirection().equals(WebsocketDirection.OUTBOUND)) {
@@ -378,18 +384,34 @@ public class AutomatedTestManagerActivityThread extends Thread {
                         testInserted = true;
                         testHighlightColor = testTarget.getHighlightColour();
                     }
+
                     websocketClient.send(curFrame);
                     // update traffic table
                     curFrame.setConversationUUID(conversationUUID);
                     curFrame.setUpgradeMessageUUID(websocketClient.getUpgradeRequest().getMessageUUID());
-                    logger.logRFC6455Message(TrafficSource.AUTOMATED_TEST,curFrame,testRun.getTestName(),testRunId,testHighlightColor);
-                    //this.projectModel.getPassiveAnomalyScanQueue().add(curFrame.getMessageUUID());
+                    logger.logRFC6455Message(TrafficSource.AUTOMATED_TEST, curFrame, testRun.getTestName(), testRunId, testHighlightColor);
                     testableElementIdx += 1;
+
+                    // Close handshake
+                    if ( curFrame.getOpcode().equals(WebsocketFrameType.CLOSE)) {
+                        if ( closeHandshakeInitDirection == null ) {
+                            closeHandshakeInitDirection = WebsocketDirection.OUTBOUND;
+                        }
+                        closeHandshakeSteps += 1;
+                    }
                 }
 
             }
+
             /*
-                We're reading frames and responding to server activities for the next sequenceItem.getDelayMsec() seconds
+                The conversation is done because we completed the close handshake
+             */
+            if ( closeHandshakeSteps == 2 ) {
+                websocketClient.disconenct();
+                break;
+            }
+            /*
+                Recv
              */
             if ( testSequenceItem.getTestSequenceItemType().equals(TestSequenceItemType.IOWAIT)) {
                 // Read frames
@@ -406,22 +428,28 @@ public class AutomatedTestManagerActivityThread extends Thread {
                             readFrame.setConversationUUID(conversationUUID);
                             readFrame.setUpgradeMessageUUID(websocketClient.getUpgradeRequest().getMessageUUID());
                             logger.logRFC6455Message(TrafficSource.AUTOMATED_TEST,readFrame,testRun.getTestName(),testRunId);
+
                             if ( readFrame.getOpcode().equals(WebsocketFrameType.CLOSE)) {
-                                serverCloseRequested = true;
-                                WebsocketFrame closeMsg = new WebsocketFrame();
-                                closeMsg.setFin(1);
-                                closeMsg.setDirection(WebsocketDirection.OUTBOUND);
-                                closeMsg.setOpcode(WebsocketFrameType.CLOSE);
-                                closeMsg.setMasked(1);
-                                closeMsg.setMaskKey(closeMsg.generateMaskBytes());
-                                closeMsg.setPayloadUnmasked(readFrame.getPayloadUnmasked());
-                                websocketClient.send(closeMsg);
-                                // update traffic table
-                                closeMsg.setConversationUUID(conversationUUID);
-                                closeMsg.setUpgradeMessageUUID(websocketClient.getUpgradeRequest().getMessageUUID());
-                                logger.logRFC6455Message(TrafficSource.AUTOMATED_TEST,closeMsg,testRun.getTestName(),testRunId,Color.WHITE);
-                                break;
+                                // A close has arrived and we need to finish the handshake
+                                if ( closeHandshakeSteps < 1) {
+                                    WebsocketFrame closeMsg = new WebsocketFrame();
+                                    closeMsg.setFin(1);
+                                    closeMsg.setDirection(WebsocketDirection.OUTBOUND);
+                                    closeMsg.setOpcode(WebsocketFrameType.CLOSE);
+                                    closeMsg.setMasked(1);
+                                    closeMsg.setMaskKey(closeMsg.generateMaskBytes());
+                                    closeMsg.setPayloadUnmasked(readFrame.getPayloadUnmasked());
+                                    websocketClient.send(closeMsg);
+                                    // update traffic table
+                                    closeMsg.setConversationUUID(conversationUUID);
+                                    closeMsg.setUpgradeMessageUUID(websocketClient.getUpgradeRequest().getMessageUUID());
+                                    logger.logRFC6455Message(TrafficSource.AUTOMATED_TEST, closeMsg, testRun.getTestName(), testRunId, Color.WHITE);
+                                    closeHandshakeSteps +=1;
+                                    closeHandshakeInitDirection = WebsocketDirection.INBOUND;
+                                    break;
+                                }
                             }
+
                             if ( readFrame.getOpcode().equals(WebsocketFrameType.PING)) {
                                 WebsocketFrame pongMsg = new WebsocketFrame();
                                 pongMsg.setFin(1);
@@ -433,7 +461,7 @@ public class AutomatedTestManagerActivityThread extends Thread {
                                 responses.add(pongMsg);
                             }
                         }
-                        if ( serverCloseRequested ) {
+                        if ( closeHandshakeSteps == 2 ) {
                             websocketClient.disconenct();
                             break;
                         }
@@ -443,7 +471,6 @@ public class AutomatedTestManagerActivityThread extends Thread {
                                 response.setConversationUUID(conversationUUID);
                                 response.setUpgradeMessageUUID(websocketClient.getUpgradeRequest().getMessageUUID());
                                 logger.logRFC6455Message(TrafficSource.AUTOMATED_TEST,response,testRun.getTestName(),testRunId);
-                                //this.projectModel.getPassiveAnomalyScanQueue().add(response.getMessageUUID());
                             }
                         }
                     }
