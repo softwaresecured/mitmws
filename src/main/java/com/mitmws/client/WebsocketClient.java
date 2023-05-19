@@ -65,6 +65,9 @@ public class WebsocketClient {
         frame.setDirection(WebsocketDirection.OUTBOUND);
         frame.setUpgradeMessageUUID(getUpgradeRequest().getMessageUUID());
         frame = ExtensionUtil.processExtensions(extensions,frame,WebsocketDirection.OUTBOUND);
+        if ( httpClient.getSocket() == null ) {
+            throw new WebsocketException(String.format("Error sending %s frame socket is already closed", frame.getOpcode().toString()));
+        }
         WebsocketConversation.writeFrame(httpClient.getSocket(),frame);
     }
 

@@ -16,7 +16,7 @@ public final class WebsocketConversation {
             dstSocket.getOutputStream().write(frame.toBytes());
             dstSocket.getOutputStream().flush();
         } catch (IOException e) {
-            throw new WebsocketException(e.getMessage());
+            throw new WebsocketException(String.format("Error sending %s frame - %s", frame.getOpcode().toString(),e.getMessage()));
         }
     }
 

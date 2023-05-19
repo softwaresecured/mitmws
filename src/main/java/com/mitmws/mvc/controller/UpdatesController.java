@@ -78,6 +78,12 @@ public class UpdatesController implements PropertyChangeListener {
         loadRemote();
     }
 
+    public void setButtonInteractionStatus( boolean status ) {
+        frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnInstallUpdates.setEnabled(status);
+        frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnCheckUpdates.setEnabled(status);
+    }
+
+
     public void initEventListeners() {
         // Check for updates
         frmUpdatesView.pnlUpdatesTableViewer.pnlUpdatesToolbar.btnCheckUpdates.addActionListener(actionEvent -> {
@@ -89,8 +95,10 @@ public class UpdatesController implements PropertyChangeListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    setButtonInteractionStatus(false);
                     ArrayList<String> installedUpdates = updateManager.applyUpdates(updateManager.getApplicableUpdates(ManifestUtils.manifestPaths));
                     updatesModel.setRecentlyInstalledUpdates(installedUpdates);
+                    setButtonInteractionStatus(true);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } catch (NoSuchAlgorithmException ex) {

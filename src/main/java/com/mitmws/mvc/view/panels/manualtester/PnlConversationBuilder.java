@@ -1,5 +1,6 @@
 package com.mitmws.mvc.view.panels.manualtester;
 import com.mitmws.mvc.model.ManualTesterModel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.EventObject;

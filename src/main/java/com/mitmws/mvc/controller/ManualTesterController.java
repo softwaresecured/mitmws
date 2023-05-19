@@ -380,10 +380,7 @@ public class ManualTesterController implements PropertyChangeListener {
             item.setDelayMsec(0);
             item.setTestSequenceItemType(TestSequenceItemType.FRAME);
             item.setFrame(frame);
-            manualTesterModel.getCurrentManualTestRun().getTestSequence().getTestSequenceItems().add(item);
-            loadTestSequence();
-            saveTestStepOrder();
-            GuiUtils.tableSelectLast(pnlManualTesterView.pnlWsConversationEditor.pnlConversationBuilder.tblWebsocketConversation);
+            addTestStep(item);
         });
 
         /*
@@ -586,6 +583,21 @@ public class ManualTesterController implements PropertyChangeListener {
         });
 
     }
+
+    public void addTestSteps( ArrayList<TestSequenceItem> steps ) {
+        manualTesterModel.getCurrentManualTestRun().getTestSequence().getTestSequenceItems().addAll(steps);
+        loadTestSequence();
+        saveTestStepOrder();
+        GuiUtils.tableSelectLast(pnlManualTesterView.pnlWsConversationEditor.pnlConversationBuilder.tblWebsocketConversation);
+    }
+
+    public void addTestStep( TestSequenceItem step ) {
+        manualTesterModel.getCurrentManualTestRun().getTestSequence().getTestSequenceItems().add(step);
+        loadTestSequence();
+        saveTestStepOrder();
+        GuiUtils.tableSelectLast(pnlManualTesterView.pnlWsConversationEditor.pnlConversationBuilder.tblWebsocketConversation);
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 
