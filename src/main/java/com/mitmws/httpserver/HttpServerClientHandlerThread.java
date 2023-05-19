@@ -200,7 +200,6 @@ public class HttpServerClientHandlerThread extends Thread {
                         HttpConversation.writeHttpMessage(clientSocket,httpResponse,HttpMessagePart.ALL, HttpMessageFormat.DIRECT, applicationConfig);
                     }
                     else {
-                        System.out.println(String.format("Getting handler script for %s", path));
                         Script handlerScript = routes.get(path);
                         if (handlerScript != null) {
                             httpResponse = buildScriptedHttpMessage(handlerScript, httpRequest);
