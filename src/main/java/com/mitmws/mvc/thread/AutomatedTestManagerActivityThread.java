@@ -220,11 +220,11 @@ public class AutomatedTestManagerActivityThread extends Thread {
                     for ( int ruleId : detectionRules.keySet() ) {
                         DetectionRule rule = detectionRules.get(ruleId);
                         if ( rule.isEnabled() && ( rule.getActiveRuleType().equals("PAYLOAD") | rule.getActiveRuleType().equals("PAYLOAD-INTERACTSH"))) {
-                            if ( !testTarget.getEnabledEncodings().contains(PayloadEncoding.RAW)) {
-                                testTarget.getEnabledEncodings().add(PayloadEncoding.RAW);
+                            ArrayList<PayloadEncoding> testEncodings = (ArrayList<PayloadEncoding>) testTarget.getEnabledEncodings().clone();
+                            if ( !testEncodings.contains(PayloadEncoding.RAW)) {
+                                testEncodings.add(PayloadEncoding.RAW);
                             }
-                            for ( PayloadEncoding payloadEncoding : testTarget.getEnabledEncodings() ) {
-
+                            for ( PayloadEncoding payloadEncoding : testEncodings ) {
                                 if ( rule.getActiveRuleType().equals("PAYLOAD") ) {
                                     ArrayList<byte[]> encodedRulePayloads = new ArrayList<byte[]>();
                                     for ( String basePayload : rule.getPayloads()) {

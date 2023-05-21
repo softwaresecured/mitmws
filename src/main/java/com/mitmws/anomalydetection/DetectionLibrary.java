@@ -7,6 +7,7 @@ import com.mitmws.logging.AppLog;
 import com.mitmws.mvc.model.InteractShTestPayload;
 import com.mitmws.mvc.model.InteractshModel;
 import com.mitmws.util.ScriptUtil;
+import jnr.ffi.annotations.In;
 
 import javax.script.ScriptException;
 import java.io.IOException;
@@ -38,11 +39,18 @@ public class DetectionLibrary {
         total number of payloads in this library
      */
     public int getEnabledPayloadCount() {
+        InteractshModel interactshModel = new InteractshModel();
+        interactshModel.setTestMode(true);
         int count = 0;
         for ( int ruleId : rules.keySet() ) {
             try {
-                if ( rules.get(ruleId).isEnabled() && rules.get(ruleId).getTestScope().equals("APPLICATION") && rules.get(ruleId).getActiveRuleType().equals("PAYLOAD")) {
-                    count += rules.get(ruleId).getPayloads().size();
+                if ( rules.get(ruleId).isEnabled() && rules.get(ruleId).getTestScope().equals("APPLICATION")) {
+                    if ( rules.get(ruleId).getActiveRuleType().equals("PAYLOAD") ) {
+                        count += rules.get(ruleId).getPayloads().size();
+                    }
+                    if ( rules.get(ruleId).getActiveRuleType().equals("PAYLOAD-INTERACTSH") ) {
+                        count += rules.get(ruleId).getOOBPayloads(interactshModel).size();
+                    }
                 }
             } catch (ScriptException e) {
                 e.printStackTrace();
