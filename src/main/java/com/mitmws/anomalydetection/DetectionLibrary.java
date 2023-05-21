@@ -7,7 +7,6 @@ import com.mitmws.logging.AppLog;
 import com.mitmws.mvc.model.InteractShTestPayload;
 import com.mitmws.mvc.model.InteractshModel;
 import com.mitmws.util.ScriptUtil;
-import jnr.ffi.annotations.In;
 
 import javax.script.ScriptException;
 import java.io.IOException;

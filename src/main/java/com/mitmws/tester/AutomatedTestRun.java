@@ -177,28 +177,6 @@ public class AutomatedTestRun implements Serializable {
         this.pctComplete = pctComplete;
     }
 
-    @Override
-    public String toString() {
-        return "AutomatedTestRun{" +
-                "id=" + id +
-                ", testId='" + testId + '\'' +
-                ", testName='" + testName + '\'' +
-                ", testRunStartTime=" + testRunStartTime +
-                ", testRunStopTime=" + testRunStopTime +
-                ", testSequence=" + testSequence +
-                ", stepCount=" + stepCount +
-                ", testCount=" + testCount +
-                ", pctComplete=" + pctComplete +
-                ", testsCompleted=" + testsCompleted +
-                ", status='" + status + '\'' +
-                ", reuseConnection=" + reuseConnection +
-                ", continueReplayAfterTestInsertion=" + continueReplayAfterTestInsertion +
-                ", dryRun=" + dryRun +
-                ", fuzzRatio=" + fuzzRatio +
-                ", fuzzSeedStart=" + fuzzSeedStart +
-                ", fuzzSeedEnd=" + fuzzSeedEnd +
-                '}';
-    }
 
     public AutomatedTestRun getCopy() {
         AutomatedTestRun testRunCopy = new AutomatedTestRun();
