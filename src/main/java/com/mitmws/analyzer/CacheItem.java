@@ -1,4 +1,4 @@
-package com.mitmws.trafficanalysis;
+package com.mitmws.analyzer;
 
 public class CacheItem {
     private long cacheTime = 0;

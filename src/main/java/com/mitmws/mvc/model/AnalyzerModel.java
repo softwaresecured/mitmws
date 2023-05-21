@@ -3,7 +3,7 @@ package com.mitmws.mvc.model;
 import com.mitmws.configuration.ApplicationConfig;
 import com.mitmws.httpproxy.trafficlogger.TrafficRecord;
 import com.mitmws.projects.ProjectDataService;
-import com.mitmws.trafficanalysis.Analyzer;
+import com.mitmws.analyzer.Analyzer;
 
 import javax.swing.event.SwingPropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -16,7 +16,6 @@ public class AnalyzerModel {
     }
 
     public void init(ProjectDataService projectDataService) {
-        System.out.println(String.format("Analyzer init: %s", projectDataService.getDbFilePath()));
         ApplicationConfig applicationConfig = new ApplicationConfig();
         if ( applicationConfig.getProperty("betafeatures.enable-analyzer").equals("true")) {
             analyzer = new Analyzer(projectDataService);

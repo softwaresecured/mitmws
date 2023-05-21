@@ -68,6 +68,7 @@ public class TrafficLogQueueProcessorThread extends Thread {
                                     mainModel.getTrafficModel().addHttpTraffic(rec.getHttpTrafficRecord());
                                     if ( rec.getHttpTrafficRecord().getResponse().getStatusCode() == 101 ) {
                                         mainModel.getTrafficModel().updateWebsocketConnections(rec);
+                                        mainModel.getAnalyzerModel().submitRecord(rec);
                                     }
                                     mainModel.getMainStatusBarModel().incHttpCount();
                                 }
