@@ -93,16 +93,6 @@ public class TestSequence implements Serializable {
         this.upgradeHelperScript = upgradeHelperScript;
     }
 
-    /*
-        public String[] getPayloadListsIds() {
-            return payloadListsIds;
-        }
-
-        public void setPayloadListsIds( String[] payloadListsIds) {
-            this.payloadListsIds = payloadListsIds;
-        }
-
-         */
     private int getFlattenedTargetCount() {
         int fCount = 0;
         if ( testTargets != null ) {
