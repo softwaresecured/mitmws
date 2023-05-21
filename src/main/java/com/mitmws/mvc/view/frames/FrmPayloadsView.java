@@ -76,5 +76,12 @@ public class FrmPayloadsView extends JFrame {
         gbc.weightx = 1;
         gbc.weighty = 1;
         add(spltAutomatedTester,gbc);
+
+
+        int parentHeight = (int)this.getSize().getHeight();
+        scrollPayloadLists.setPreferredSize(new Dimension(getWidth(),(int)parentHeight/2));
+        scrollPayloadList.setPreferredSize(new Dimension(getWidth(),(int)parentHeight/2));
+        spltAutomatedTester.setResizeWeight(0.5);
+
     }
 }
