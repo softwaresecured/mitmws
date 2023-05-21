@@ -1,4 +1,4 @@
-package com.mitmws.trafficanalysis;
+package com.mitmws.analyzer;
 
 public enum DataType {
     UNKNOWN,

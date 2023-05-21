@@ -72,6 +72,12 @@ public class MainController implements PropertyChangeListener {
         this.mainModel = model;
         this.frmMainView = view;
 
+
+        attachListeners();
+        // Controllers
+        trafficController = new TrafficController(mainModel.getTrafficModel(),mainModel.getProjectModel(),frmMainView.pnlTrafficView);
+        anomaliesController = new AnomaliesController(mainModel.getAnomaliesModel(),mainModel.getProjectModel(),frmMainView.pnlAnomaliesView);
+        immediateController = new ImmediateController(mainModel,model.getImmediateModel(),mainModel.getProjectModel(),mainModel.getProxy().getLogger(),frmMainView.pnlImmediateView);
         // Create the project
         try {
             mainModel.getProjectModel().createDefaultProject();
@@ -80,18 +86,15 @@ public class MainController implements PropertyChangeListener {
             e.printStackTrace(); // TODO big error
         }
 
-        // Controllers
+
         updatesController = new UpdatesController(mainModel.getUpdatesModel(),frmMainView.frmUpdatesView);
         mainStatusBarController = new MainStatusBarController(mainModel.getMainStatusBarModel(),frmMainView.pnlMainStatusBarView);
-        trafficController = new TrafficController(mainModel.getTrafficModel(),mainModel.getProjectModel(),frmMainView.pnlTrafficView);
         trafficSearchController = new TrafficSearchController(mainModel,frmMainView.pnlTrafficSearchView);
         environmentController = new EnvironmentController(mainModel,frmMainView.frmEnvironmentView);
         manualTesterController = new ManualTesterController(mainModel,mainModel.getProxy().getLogger(),frmMainView.pnlManualTesterView);
         automatedTesterController = new AutomatedTesterController(model,mainModel.getProxy().getLogger(),frmMainView.pnlAutomatedTesterView);
-        anomaliesController = new AnomaliesController(mainModel.getAnomaliesModel(),mainModel.getProjectModel(),frmMainView.pnlAnomaliesView);
         logsController = new LogsController(mainModel.getAppLogModel(),frmMainView.frmLogsView);
         settingsController = new SettingsController(mainModel,frmMainView.frmSettingsView);
-        immediateController = new ImmediateController(mainModel,model.getImmediateModel(),mainModel.getProjectModel(),mainModel.getProxy().getLogger(),frmMainView.pnlImmediateView);
         payloadsController = new PayloadsController(mainModel.getPayloadsModel(),frmMainView.frmPayloadsView);
         interactshController = new InteractshController(mainModel.getInteractshModel(),mainModel,frmMainView.pnlInteractsh);
         rulesController = new RulesController(mainModel,frmMainView.frmRulesView);
@@ -100,7 +103,7 @@ public class MainController implements PropertyChangeListener {
         encoderDecoderToolController = new EncoderDecoderToolController(mainModel.getEncoderDecoderToolModel(),frmMainView.frmEncoderDecoderToolView);
         httpRequestController = new HttpRequestController(mainModel.getHttpRequestTesterModel(),frmMainView.frmHttpRequestTester);
         projectDataExplorerController = new ProjectDataExplorerController(mainModel,frmMainView.frmProjectDataExplorer);
-        attachListeners();
+
         initEventListeners();
 
 
@@ -867,7 +870,7 @@ public class MainController implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 
-        if ( "ProjectModel.mitmwsDbFileDbFile".equals(propertyChangeEvent.getPropertyName())) {
+        if ( "ProjectModel.mitmwsDbFile".equals(propertyChangeEvent.getPropertyName())) {
             updateMainTitle();
             if ( mainModel.getProjectModel().getProjectDataService() != null ) {
                 mainModel.getAnalyzerModel().init(mainModel.getProjectModel().getProjectDataService());

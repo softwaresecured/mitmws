@@ -1,4 +1,4 @@
-package com.mitmws.trafficanalysis.models;
+package com.mitmws.analyzer.models;
 
 import java.util.HashMap;
 
