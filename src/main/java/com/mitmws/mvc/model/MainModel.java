@@ -195,14 +195,27 @@ public class MainModel {
 
     // Syncs active connections in HttpProxy with connections table in traffic model
     public void syncActiveConnections() {
-
         String[] activeConnections = proxy.getActiveWebsocketConnections();
         if ( trafficModel.getWebsocketConnectionsModel().getRowCount() > 1 ) {
-            for ( int i = 1; i < trafficModel.getWebsocketConnectionsModel().getRowCount(); i++ ) {
+            for ( int i = 0; i < trafficModel.getWebsocketConnectionsModel().getRowCount(); i++ ) {
                 if ( Arrays.stream(activeConnections).anyMatch(trafficModel.getWebsocketConnectionsModel().getValueAt(i,0)::equals)) {
                     trafficModel.getWebsocketConnectionsModel().setValueAt("OPEN",i,2);
                 }
                 else {
+                    trafficModel.getWebsocketConnectionsModel().setValueAt("CLOSED",i,2);
+                    analyzerModel.submitConversation((String) trafficModel.getWebsocketConnectionsModel().getValueAt(i,0));
+                }
+            }
+        }
+    }
+
+    // Marks a session as closed ( eventually we'll get rid of the function above )
+    public void markConnectionClosed( String sessionId ) {
+        String[] activeConnections = proxy.getActiveWebsocketConnections();
+        if ( trafficModel.getWebsocketConnectionsModel().getRowCount() > 1 ) {
+            for ( int i = 0; i < trafficModel.getWebsocketConnectionsModel().getRowCount(); i++ ) {
+                String curSessionId = (String) trafficModel.getWebsocketConnectionsModel().getValueAt(i,0);
+                if ( curSessionId.equals(sessionId) ) {
                     trafficModel.getWebsocketConnectionsModel().setValueAt("CLOSED",i,2);
                 }
             }

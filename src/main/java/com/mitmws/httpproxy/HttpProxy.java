@@ -6,6 +6,7 @@ import com.mitmws.httpproxy.websocket.WebsocketSession;
 import com.mitmws.logging.AppLog;
 import com.mitmws.mvc.model.BreakpointModel;
 
+import java.beans.PropertyChangeListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -27,6 +28,12 @@ public class HttpProxy {
         httpProxylisteners = new ArrayList<>();
         trafficLog = new TrafficLogger();
         trafficLog.setProjectScope(projectScope);
+    }
+
+    public void addCleanupThreadEventListener(PropertyChangeListener listener ) {
+        if ( httpProxyCleanupThread != null ) {
+            httpProxyCleanupThread.addListener(listener);
+        }
     }
 
     public ArrayList<HttpProxyListenerThread> getHttpProxylisteners() {

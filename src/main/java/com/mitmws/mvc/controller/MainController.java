@@ -133,6 +133,7 @@ public class MainController implements PropertyChangeListener {
         mainModel.getUpdatesModel().addListener(this);
         mainModel.getSettingsModel().addListener(this);
         mainModel.getInteractshModel().addListener(this);
+        mainModel.getProxy().addCleanupThreadEventListener(this);
     }
     public String exportSelectedFramesByUpgradeUUID( String messageIds ) {
         String exportRec = null;
@@ -554,6 +555,9 @@ public class MainController implements PropertyChangeListener {
             stopProxyServices();
             logTailerThread.shutdown();
             passiveAnomalyDetectorThread.shutdown();
+            if ( mainModel.getAnalyzerModel().getAnalyzerWorkerThread() != null ) {
+                mainModel.getAnalyzerModel().getAnalyzerWorkerThread().shutdown();
+            }
             try {
                 logTailerThread.join();
             } catch (InterruptedException e) {
@@ -562,6 +566,14 @@ public class MainController implements PropertyChangeListener {
             try {
                 passiveAnomalyDetectorThread.join();
             } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                if ( mainModel.getAnalyzerModel().getAnalyzerWorkerThread() != null ) {
+                    mainModel.getAnalyzerModel().getAnalyzerWorkerThread().join();
+                }
+            }
+            catch ( InterruptedException e ) {
                 e.printStackTrace();
             }
             frmMainView.dispose();
@@ -884,6 +896,10 @@ public class MainController implements PropertyChangeListener {
         }
         if ( "InteractshModel.interaction".equals(propertyChangeEvent.getPropertyName())) {
             GuiUtils.updateTabTitle(frmMainView.jtabMain,"OOB",String.format("OOB (%d)",mainModel.getInteractshModel().getInteractionsTableModel().getRowCount()));
+        }
+
+        if ( "HttpProxyCleanupThread.websocketSessionTerminated".equals(propertyChangeEvent.getPropertyName())) {
+            // Event that an http client handler with a websocket session was termianted
         }
 
     }
