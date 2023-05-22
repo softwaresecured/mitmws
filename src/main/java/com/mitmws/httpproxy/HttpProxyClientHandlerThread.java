@@ -243,7 +243,6 @@ public class HttpProxyClientHandlerThread extends Thread {
         boolean isTls = false;
         HostCacheItem cacheCheck = hostCache.get(hostname,port);
         if ( cacheCheck != null ) {
-            System.out.println(String.format("CACHE-HIT: detectTls - host cache has %d", hostCache.size()));
             return cacheCheck.isTls();
         }
         else {
@@ -254,7 +253,6 @@ public class HttpProxyClientHandlerThread extends Thread {
             }
             else {
                 try {
-                    System.out.println(String.format("CACHE-MISS: detectTls - host cache has %d", hostCache.size()));
                     SSLSocket s = (SSLSocket) MitmWsSocketFactory.getEncryptedSocket(hostname,port,applicationConfig);
                     s.setSoTimeout(1000);
                     s.startHandshake();

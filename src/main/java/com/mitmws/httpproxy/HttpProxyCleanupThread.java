@@ -2,15 +2,19 @@ package com.mitmws.httpproxy;
 
 import com.mitmws.logging.AppLog;
 
+import javax.swing.event.SwingPropertyChangeSupport;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class HttpProxyCleanupThread extends Thread {
     private boolean shutdownRequested = false;
     private ArrayList<HttpProxyListenerThread> listenerPool = null;
+    private SwingPropertyChangeSupport eventEmitter;
     private Logger LOGGER = AppLog.getLogger(HttpProxyCleanupThread.class.getName());
     public HttpProxyCleanupThread(ArrayList<HttpProxyListenerThread> listenerPool) {
         this.listenerPool = listenerPool;
+        eventEmitter = new SwingPropertyChangeSupport(this);
     }
     public void run() {
         LOGGER.info("Proxy cleanup thread started");
@@ -22,7 +26,11 @@ public class HttpProxyCleanupThread extends Thread {
                             try {
                                 httpProxyListenerThread.getClientHandlers()[j].join(1);
                                 if (!httpProxyListenerThread.getClientHandlers()[j].isAlive()) {
+                                    String websocketSessionId = httpProxyListenerThread.getClientHandlers()[j].getWebsocketSessionId();
                                     httpProxyListenerThread.getClientHandlers()[j] = null;
+                                    if ( websocketSessionId != null ) {
+                                        eventEmitter.firePropertyChange("HttpProxyCleanupThread.websocketSessionTerminated", null, websocketSessionId);
+                                    }
                                 }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -43,6 +51,11 @@ public class HttpProxyCleanupThread extends Thread {
         }
         LOGGER.info("Proxy cleanup thread stopped");
     }
+
+    public void addListener(PropertyChangeListener listener ) {
+        eventEmitter.addPropertyChangeListener(listener);
+    }
+
     public void shutdown() {
         LOGGER.info("Shutdown request detected");
         shutdownRequested = true;
