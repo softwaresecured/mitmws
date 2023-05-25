@@ -203,7 +203,6 @@ public class MainModel {
                 }
                 else {
                     trafficModel.getWebsocketConnectionsModel().setValueAt("CLOSED",i,2);
-                    analyzerModel.submitConversation((String) trafficModel.getWebsocketConnectionsModel().getValueAt(i,0));
                 }
             }
         }

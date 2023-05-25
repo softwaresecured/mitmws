@@ -123,6 +123,7 @@ public class MainController implements PropertyChangeListener {
         frmMainView.mnuItemImportFramesFromFile.setEnabled(false);
         frmMainView.mnuItemImportHttpFromFile.setEnabled(false);
         frmMainView.mnuConversations.setEnabled(false);
+
     }
 
     public void attachListeners() {
@@ -133,7 +134,6 @@ public class MainController implements PropertyChangeListener {
         mainModel.getUpdatesModel().addListener(this);
         mainModel.getSettingsModel().addListener(this);
         mainModel.getInteractshModel().addListener(this);
-        mainModel.getProxy().addCleanupThreadEventListener(this);
     }
     public String exportSelectedFramesByUpgradeUUID( String messageIds ) {
         String exportRec = null;
@@ -845,6 +845,7 @@ public class MainController implements PropertyChangeListener {
         logQueueProcessorThread.start();
         mainModel.getProxy().startAll();
         mainModel.getHttpServer().start();
+        mainModel.getProxy().addCleanupThreadEventListener(this);
         try {
             Thread.sleep(2000);
             mainModel.getMainStatusBarModel().setProxyListenAddr(mainModel.getProxy().getFirstInstanceListenAddress());
@@ -899,7 +900,10 @@ public class MainController implements PropertyChangeListener {
         }
 
         if ( "HttpProxyCleanupThread.websocketSessionTerminated".equals(propertyChangeEvent.getPropertyName())) {
-            // Event that an http client handler with a websocket session was termianted
+            String conversationUuid = (String) propertyChangeEvent.getNewValue();
+            if ( conversationUuid != null ) {
+                mainModel.getAnalyzerModel().submitConversation(conversationUuid);
+            }
         }
 
     }

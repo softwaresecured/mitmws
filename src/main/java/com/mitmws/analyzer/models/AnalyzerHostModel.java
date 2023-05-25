@@ -3,13 +3,9 @@ package com.mitmws.analyzer.models;
 import java.util.HashMap;
 
 public class AnalyzerHostModel {
-    private HashMap<String,AnalyzerMessageModel> messageModel = new HashMap<String,AnalyzerMessageModel>();
+    private HashMap<String, AnalyzerWebsocketMessageModel> messageModel = new HashMap<String, AnalyzerWebsocketMessageModel>();
     public AnalyzerHostModel() {
 
-    }
-
-    public HashMap<String, AnalyzerMessageModel> getMessageModel() {
-        return messageModel;
     }
 
 }

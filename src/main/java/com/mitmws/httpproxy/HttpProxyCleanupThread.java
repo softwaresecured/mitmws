@@ -27,10 +27,11 @@ public class HttpProxyCleanupThread extends Thread {
                                 httpProxyListenerThread.getClientHandlers()[j].join(1);
                                 if (!httpProxyListenerThread.getClientHandlers()[j].isAlive()) {
                                     String websocketSessionId = httpProxyListenerThread.getClientHandlers()[j].getWebsocketSessionId();
-                                    httpProxyListenerThread.getClientHandlers()[j] = null;
                                     if ( websocketSessionId != null ) {
                                         eventEmitter.firePropertyChange("HttpProxyCleanupThread.websocketSessionTerminated", null, websocketSessionId);
                                     }
+                                    httpProxyListenerThread.getClientHandlers()[j] = null;
+
                                 }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();

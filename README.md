@@ -2,6 +2,8 @@
 
 MitmWs is an HTTP proxy designed specifically for pentesting applications that use websockets.
 
+![](https://github.com/softwaresecured/mitmws/raw/main/images/main.png)
+
 # Current work in progress
 - analyzer model
 - one click replay optimization
