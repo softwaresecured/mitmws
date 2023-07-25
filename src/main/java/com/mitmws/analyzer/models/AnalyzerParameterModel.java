@@ -13,8 +13,24 @@ public class AnalyzerParameterModel {
     private ArrayList<String> valueVariants = new ArrayList<String>();
     private ArrayList<String> tags = new ArrayList<String>();
     private ArrayList<DataType> observedDataTypes = new ArrayList<DataType>();
-    public AnalyzerParameterModel(String name) {
+    public AnalyzerParameterModel(String name, String value ) {
         this.name = name;
+        addValueVariant(value);
+    }
+
+    public void merge( AnalyzerParameterModel model ) {
+        // Tags
+        for ( String tag : model.getTags() ) {
+            addTag(tag);
+        }
+        // Data types
+        for ( DataType dataType : model.getObservedDataTypes() ) {
+            addObservedDataType(dataType);
+        }
+        // Value variants
+        for ( String variant : model.getValueVariants() ) {
+            addValueVariant(variant);
+        }
     }
 
     public void addTag( String tag ) {
@@ -38,9 +54,12 @@ public class AnalyzerParameterModel {
 
     public void addValueVariant(String value ) {
         if ( value != null ) {
-            if ( valueVariants.size() < MAX_VALUE_VARIANT_COUNT ) {
+            if ( !valueVariants.contains(value)) {
                 addObservedDataType(getDataType(value));
                 valueVariants.add(value);
+                if ( valueVariants.size() > MAX_VALUE_VARIANT_COUNT ) {
+                    valueVariants.remove(0);
+                }
             }
         }
     }
@@ -59,37 +78,40 @@ public class AnalyzerParameterModel {
         }
 
         // url
-        if ( !observedDataTypes.contains(DataType.URL)) {
-            try {
-                URL testUrl = new URL(data);
-                observedDataTypes.add(DataType.URL);
-            } catch (MalformedURLException e) {
-                ;
-            }
+        try {
+            URL testUrl = new URL(data);
+            observedDataTypes.add(DataType.URL);
+        } catch (MalformedURLException e) {
+            ;
         }
 
+        // email
+
+        if ( data.matches("(?i)(.+)@(.+)")) {
+            dataType = DataType.EMAIL;
+        }
+
+
+        // md5 hash
         if ( data.matches("(?i)[0-9a-f]{32}")) {
             dataType = DataType.MD5_HASH;
         }
 
+        // sha1 hash
         if ( data.matches("(?i)[0-9a-f]{40}")) {
             dataType = DataType.SHA1_HASH;
         }
 
+        // unix timestamp seconds
         if ( data.matches("(?i)\\d{10}")) {
             dataType = DataType.UNIX_TIMESTAMP_SEC;
         }
 
+        // unix timestamp ms
         if ( data.matches("(?i)\\d{13}")) {
             dataType = DataType.UNIX_TIMESTAMP_MSEC;
         }
 
-
-        // TODO Other tests...
-        // Catchall
-        if ( data.matches(".*")) {
-            dataType = DataType.TEXT;
-        }
         return dataType;
     }
 

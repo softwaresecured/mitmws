@@ -9,6 +9,7 @@ public enum DataType {
     IPV4,
     IPV6,
     URL,
+    EMAIL,
     FILEPATH,
     MD5_HASH,
     SHA1_HASH
