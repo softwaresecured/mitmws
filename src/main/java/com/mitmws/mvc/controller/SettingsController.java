@@ -6,6 +6,7 @@ import com.mitmws.mvc.view.frames.FrmSettingsView;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 
 public class SettingsController implements PropertyChangeListener {
     private MainModel mainModel;
@@ -41,16 +42,27 @@ public class SettingsController implements PropertyChangeListener {
     }
 
     public boolean validateSettings() {
+        String[] optionalKeys = new String[] {
+                "rules.enabled.active",
+                "rules.enabled.passive",
+                "interactsh.serverurl",
+                "interactsh.token"
+        };
         boolean valid = true;
         for ( int i = 0; i < mainModel.getSettingsModel().getSettingsTableModel().getRowCount(); i++ ) {
-            //boolean valid = (boolean) settingsModel.getSettingsTableModel().getValueAt(i,0);
             String key = (String)mainModel.getSettingsModel().getSettingsTableModel().getValueAt(i,1);
             String value = (String)mainModel.getSettingsModel().getSettingsTableModel().getValueAt(i,2);
+            // Some keys are optional
+            System.out.println(String.format("Validating %s/[%s]", key,value));
+            if ( Arrays.stream(optionalKeys).anyMatch(key::equals) && value.length() == 0 ) {
+                continue;
+            }
             try {
                 mainModel.getSettingsModel().getApplicationConfig().validateProperty(key,value);
                 mainModel.getSettingsModel().getSettingsTableModel().setValueAt(true,i,0);
             } catch (ApplicationConfigException e) {
                 mainModel.getSettingsModel().getSettingsTableModel().setValueAt(false,i,0);
+                System.out.println(String.format("Key %s/%s is not valid", key,value));
                 valid = false;
             }
         }
