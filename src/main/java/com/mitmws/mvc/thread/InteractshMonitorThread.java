@@ -28,9 +28,9 @@ public class InteractshMonitorThread extends  Thread {
             }
             interactshModel.deregister();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.severe(String.format("IO exception while contacting interactsh server: %s", e.getMessage()));
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            ;
         }
         LOGGER.info("Interact-sh monitor stopped");
     }
