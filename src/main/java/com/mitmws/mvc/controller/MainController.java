@@ -6,6 +6,7 @@ import com.mitmws.httpproxy.trafficlogger.HttpTrafficRecord;
 import com.mitmws.httpproxy.trafficlogger.WebsocketDirection;
 import com.mitmws.httpproxy.trafficlogger.WebsocketTrafficRecord;
 import com.mitmws.httpproxy.websocket.WebsocketFrameType;
+import com.mitmws.logging.AppLog;
 import com.mitmws.projects.ProjectDataServiceException;
 import com.mitmws.tester.TestSequenceItem;
 import com.mitmws.tester.TestSequenceItemType;
@@ -33,9 +34,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.logging.Logger;
 
 public class MainController implements PropertyChangeListener {
-
+    private final Logger LOGGER = AppLog.getLogger(MainController.class.getName());
     private MainModel mainModel;
     private FrmMainView frmMainView;
     // Sub controllers
@@ -679,6 +681,7 @@ public class MainController implements PropertyChangeListener {
         frmMainView.frmSettingsView.btnApply.addActionListener(actionEvent -> {
             if (settingsController.validateSettings() ) {
                 stopProxyServices();
+                stopInteractshMonitorThread();
                 for ( int i = 0; i < mainModel.getSettingsModel().getSettingsTableModel().getRowCount(); i++ ) {
                     String key = (String)mainModel.getSettingsModel().getSettingsTableModel().getValueAt(i,1);
                     String value = (String)mainModel.getSettingsModel().getSettingsTableModel().getValueAt(i,2);
@@ -693,6 +696,15 @@ public class MainController implements PropertyChangeListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                mainModel.getInteractshModel().reloadConfig();
+
+                try {
+                    mainModel.getInteractshModel().register();
+                    startInteractshMonitorThread();
+                } catch (IOException e) {
+                    LOGGER.severe(String.format("Failed to configure interactsh model: %s", e.getMessage()));
+                }
+
                 startProxyServices();
 
             }
@@ -818,11 +830,13 @@ public class MainController implements PropertyChangeListener {
     }
 
     public void stopInteractshMonitorThread() {
-        interactshMonitorThread.shutdown();
-        try {
-            interactshMonitorThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if ( interactshMonitorThread != null ) {
+            interactshMonitorThread.shutdown();
+            try {
+                interactshMonitorThread.join();
+            } catch (InterruptedException e) {
+                LOGGER.severe(String.format("Error shutting down interactsh monitor thread: %s", e.getMessage()));
+            }
         }
     }
 
