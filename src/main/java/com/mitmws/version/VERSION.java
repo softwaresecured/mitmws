@@ -23,11 +23,12 @@ package com.mitmws.version;
     0.1.20  - Rule tests
     0.1.21  - bugfixes
     0.1.22  - Rename tool
+    0.1.23  - bugfixes #33 #32 #24 #17 #16 #14 #4
  */
 public final class VERSION {
     public static final int VERSION_MAJOR = 0;
     public static final int VERSION_MINOR = 1;
-    public static final int VERSION_PATCH = 22;
+    public static final int VERSION_PATCH = 23;
 
     public static String getVersionStr() {
         return String.format("%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
